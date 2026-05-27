@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jhwiv/trip-restaurants/schema.json",
+  "title": "Trip Restaurants Dataset",
+  "description": "A trip's restaurant data: a set of dining-night slots, each filled with one or more restaurant options across three price tiers (Refined / Elevated / Signature).",
+  "type": "object",
+  "required": ["trip", "tiers", "nights"],
+  "properties": {
+    "trip": {
+      "type": "object",
+      "required": ["city", "startDate", "endDate"],
+      "properties": {
+        "city": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "currency": { "type": "string", "default": "USD" }
+      }
+    },
+    "tiers": {
+      "type": "object",
+      "description": "Tier definitions. Keys are the tier ids; order in the object is the display order (low → high).",
+      "properties": {
+        "refined":   { "$ref": "#/$defs/tier" },
+        "elevated":  { "$ref": "#/$defs/tier" },
+        "signature": { "$ref": "#/$defs/tier" }
+      },
+      "additionalProperties": { "$ref": "#/$defs/tier" }
+    },
+    "nights": {
+      "type": "array",
+      "description": "One entry per dining night in the trip, in chronological order.",
+      "items": { "$ref": "#/$defs/night" }
+    }
+  },
+
+  "$defs": {
+    "tier": {
+      "type": "object",
+      "required": ["label", "priceBand"],
+      "properties": {
+        "label": { "type": "string", "description": "Human-facing tier label (e.g. 'Refined')." },
+        "priceBand": { "type": "string", "description": "Display string (e.g. '$$', '$25–45 pp')." },
+        "blurb": { "type": "string", "description": "Short description shown under the tier picker." },
+        "leadTime": { "type": "string", "description": "Booking lead time copy (e.g. '4–6 weeks', 'walk-in')." }
+      }
+    },
+
+    "night": {
+      "type": "object",
+      "required": ["date", "label", "options"],
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "label": { "type": "string", "description": "Human-readable night label (e.g. 'Fri Jun 5 — Canyon Road night')." },
+        "theme": { "type": "string", "description": "Optional themes line (e.g. 'arrival', 'Canyon Road night', 'farewell')." },
+        "time": { "type": "string", "description": "Default dinner time (e.g. '7:00 PM')." },
+        "defaultTier": {
+          "type": "string",
+          "description": "Tier preselected for this night when the user has no saved choice.",
+          "enum": ["refined", "elevated", "signature"]
+        },
+        "options": {
+          "type": "object",
+          "description": "Restaurant pick at each tier. At least one tier must be filled; missing tiers fall back to the closest filled tier with a visible note.",
+          "properties": {
+            "refined":   { "$ref": "#/$defs/restaurant" },
+            "elevated":  { "$ref": "#/$defs/restaurant" },
+            "signature": { "$ref": "#/$defs/restaurant" }
+          },
+          "additionalProperties": { "$ref": "#/$defs/restaurant" },
+          "minProperties": 1
+        }
+      }
+    },
+
+    "restaurant": {
+      "type": "object",
+      "required": ["id", "name", "city", "address", "phone", "website", "booking", "verifiedAt"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "name": { "type": "string" },
+        "city": { "type": "string" },
+        "cuisine": { "type": "string" },
+        "address": { "type": "string" },
+        "neighborhood": { "type": "string", "description": "e.g. 'Canyon Road', 'Plaza', 'Railyard'." },
+        "phone": { "type": "string", "description": "E.164 format preferred (e.g. '+15059821500')." },
+        "website": { "type": "string", "format": "uri" },
+        "priceBand": { "type": "string", "description": "Display string for this specific restaurant (e.g. '$90–130 pp')." },
+        "booking": { "$ref": "#/$defs/booking" },
+        "hours": {
+          "type": "object",
+          "properties": {
+            "dinner": { "type": "string" },
+            "closedDays": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["mon","tue","wed","thu","fri","sat","sun"] }
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Short bullets shown in the modal (e.g. 'Patio under the chapel', 'Walk-in rooftop only')."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Free-form tags: 'patio', 'tasting-menu', 'live-music', 'walk-in-friendly', etc."
+        },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "verifiedAt": { "type": "string", "format": "date", "description": "Last manual or automated QA verification date." },
+        "verifiedSources": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" }
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["verified", "needs-recheck", "broken", "candidate"],
+          "default": "verified",
+          "description": "Set by the verify script. 'candidate' = never verified yet; 'broken' = last verify failed."
+        }
+      }
+    },
+
+    "booking": {
+      "type": "object",
+      "required": ["platform"],
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["opentable", "resy", "tock", "sevenrooms", "yelp", "phone", "walkin"],
+          "description": "Which booking system the user should be sent to. 'phone' = call only. 'walkin' = no reservations at all."
+        },
+        "url": { "type": "string", "format": "uri", "description": "Direct reservation URL when platform is online. Omitted for phone/walkin." },
+        "leadTime": { "type": "string", "description": "Override of the tier-level lead time (e.g. '6+ weeks', 'same day')." },
+        "note": { "type": "string", "description": "Inline note shown next to the reserve button (e.g. 'Limited online June availability — call')." },
+        "rooftopWalkInOnly": { "type": "boolean", "description": "Special-case flag for places like Coyote Cafe where the rooftop is walk-in but the main floor is bookable." }
+      }
+    }
+  }
+}

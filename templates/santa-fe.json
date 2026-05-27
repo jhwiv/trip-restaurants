@@ -1,0 +1,438 @@
+{
+  "$schema": "../schema.json",
+  "trip": {
+    "city": "Santa Fe",
+    "startDate": "2026-06-03",
+    "endDate": "2026-06-10",
+    "currency": "USD"
+  },
+  "tiers": {
+    "refined": {
+      "label": "Refined",
+      "priceBand": "$$",
+      "blurb": "Local, lived-in, food-first.",
+      "leadTime": "1–2 days or walk-in"
+    },
+    "elevated": {
+      "label": "Elevated",
+      "priceBand": "$$$",
+      "blurb": "Polished, real night out.",
+      "leadTime": "1–2 weeks"
+    },
+    "signature": {
+      "label": "Signature",
+      "priceBand": "$$$$",
+      "blurb": "Special-occasion, Canyon Road energy.",
+      "leadTime": "4–6 weeks"
+    }
+  },
+  "nights": [
+    {
+      "date": "2026-06-03",
+      "label": "Wed Jun 3 — Arrival dinner",
+      "theme": "Near the Plaza, low-key after the flight.",
+      "time": "7:00 PM",
+      "defaultTier": "signature",
+      "options": {
+        "refined": {
+          "id": "the-shed-santa-fe",
+          "name": "The Shed",
+          "city": "Santa Fe",
+          "cuisine": "New Mexican",
+          "neighborhood": "Plaza",
+          "address": "113 1/2 E Palace Ave, Santa Fe, NM 87501",
+          "phone": "+15059829030",
+          "website": "https://www.sfshed.com",
+          "priceBand": "$25–40 pp",
+          "booking": { "platform": "walkin", "note": "Long-running family spot — walk in early or expect a wait." },
+          "notes": ["70-year Santa Fe institution", "Red chile enchiladas are the order"],
+          "tags": ["walk-in-friendly", "iconic", "casual"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "elevated": {
+          "id": "sazon-santa-fe",
+          "name": "Sazón",
+          "city": "Santa Fe",
+          "cuisine": "Contemporary Mexican",
+          "neighborhood": "Plaza",
+          "address": "221 Shelby St, Santa Fe, NM 87501",
+          "phone": "+15059838604",
+          "website": "https://sazonsantafe.com",
+          "priceBand": "$70–110 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/sazon-santa-fe",
+            "leadTime": "1–2 weeks"
+          },
+          "notes": ["Mole-driven Mexican from Chef Fernando Olea", "Chef's Degustación is phone-only"],
+          "tags": ["tasting-menu", "walkable-plaza"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        },
+        "signature": {
+          "id": "anasazi-restaurant",
+          "name": "Anasazi Restaurant",
+          "city": "Santa Fe",
+          "cuisine": "Contemporary American / Southwest",
+          "neighborhood": "Plaza",
+          "address": "113 Washington Ave, Santa Fe, NM 87501",
+          "phone": "+15059883030",
+          "website": "https://www.rosewoodhotels.com/en/inn-of-the-anasazi-santa-fe/dining/anasazi-restaurant",
+          "priceBand": "$90–140 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/r/anasazi-restaurant-reservations-santa-fe",
+            "leadTime": "4–6 weeks"
+          },
+          "notes": ["Inside Rosewood Inn of the Anasazi", "Candlelit adobe interiors with plaza-facing patio"],
+          "tags": ["hotel-dining", "patio", "first-night"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        }
+      }
+    },
+    {
+      "date": "2026-06-04",
+      "label": "Thu Jun 4 — Bandelier day",
+      "theme": "Settled dinner after the Bandelier & Puye day trip.",
+      "time": "7:00 PM",
+      "defaultTier": "signature",
+      "options": {
+        "refined": {
+          "id": "la-choza-santa-fe",
+          "name": "La Choza",
+          "city": "Santa Fe",
+          "cuisine": "New Mexican",
+          "neighborhood": "Railyard",
+          "address": "905 Alarid St, Santa Fe, NM 87501",
+          "phone": "+15059820909",
+          "website": "https://www.lachozasf.com",
+          "priceBand": "$25–40 pp",
+          "booking": { "platform": "walkin", "note": "Sister to The Shed — same chile, half the wait." },
+          "notes": ["Family-run since 1983", "Carne adovada is the move"],
+          "tags": ["walk-in-friendly", "casual"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "elevated": {
+          "id": "restaurant-martin-santa-fe",
+          "name": "Restaurant Martín",
+          "city": "Santa Fe",
+          "cuisine": "Progressive American",
+          "neighborhood": "Plaza",
+          "address": "526 Galisteo St, Santa Fe, NM 87501",
+          "phone": "+15058200919",
+          "website": "https://www.restaurantmartin.com",
+          "priceBand": "$70–110 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/restaurant-martin",
+            "leadTime": "1–2 weeks"
+          },
+          "notes": ["Chef Martín Rios — James Beard Southwest semifinalist", "Quiet leafy back patio"],
+          "tags": ["patio", "tasting-menu-available"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        },
+        "signature": {
+          "id": "the-compound-santa-fe",
+          "name": "The Compound",
+          "city": "Santa Fe",
+          "cuisine": "Contemporary American / Mediterranean",
+          "neighborhood": "Canyon Road",
+          "address": "653 Canyon Rd, Santa Fe, NM 87501",
+          "phone": "+15059824353",
+          "website": "https://compoundrestaurant.com",
+          "priceBand": "$100–160 pp",
+          "booking": {
+            "platform": "resy",
+            "url": "https://resy.com/cities/santa-fe-nm/venues/the-compound-restaurant",
+            "leadTime": "4–6 weeks",
+            "note": "The Compound is on Resy, not OpenTable."
+          },
+          "notes": ["Chef Mark Kiffin's flagship", "Patio tables go first — also Mon Jun 8 backup"],
+          "tags": ["canyon-road", "patio"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        }
+      }
+    },
+    {
+      "date": "2026-06-05",
+      "label": "Fri Jun 5 — Canyon Road night",
+      "theme": "Gallery walk into dinner.",
+      "time": "7:00 PM",
+      "defaultTier": "signature",
+      "options": {
+        "refined": {
+          "id": "el-farol-santa-fe",
+          "name": "El Farol",
+          "city": "Santa Fe",
+          "cuisine": "Spanish tapas",
+          "neighborhood": "Canyon Road",
+          "address": "808 Canyon Rd, Santa Fe, NM 87501",
+          "phone": "+15059839912",
+          "website": "https://elfarolsantafe.com",
+          "priceBand": "$35–55 pp",
+          "booking": {
+            "platform": "phone",
+            "leadTime": "Same day",
+            "note": "Live flamenco Fridays — call to confirm and reserve."
+          },
+          "notes": ["Oldest restaurant on Canyon Road", "Tapas + sherry list"],
+          "tags": ["canyon-road", "live-music", "tapas"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "elevated": {
+          "id": "izanami-ten-thousand-waves",
+          "name": "Izanami",
+          "city": "Santa Fe",
+          "cuisine": "Japanese izakaya",
+          "neighborhood": "Hyde Park / Ten Thousand Waves",
+          "address": "21 Ten Thousand Waves Way, Santa Fe, NM 87501",
+          "phone": "+15059821320",
+          "website": "https://tenthousandwaves.com/dining-2",
+          "priceBand": "$60–95 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/izanami",
+            "leadTime": "1–2 weeks",
+            "note": "Inside Ten Thousand Waves — ~15 min from Plaza, paired with a soak makes the night."
+          },
+          "notes": ["Sake list is the deepest in town", "Mountainside terrace"],
+          "tags": ["mountain", "izakaya", "sake"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "signature": {
+          "id": "geronimo-santa-fe",
+          "name": "Geronimo",
+          "city": "Santa Fe",
+          "cuisine": "Modern global",
+          "neighborhood": "Canyon Road",
+          "address": "724 Canyon Rd, Santa Fe, NM 87501",
+          "phone": "+15059821500",
+          "website": "https://www.geronimorestaurant.com",
+          "priceBand": "$100–150 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/geronimo-santa-fe",
+            "leadTime": "6+ weeks",
+            "note": "OpenTable currently shows no online June availability — call (505) 982-1500 directly."
+          },
+          "notes": ["Two Canyon Road seatings", "Kitchen open until 11 PM Mon"],
+          "tags": ["canyon-road", "iconic"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        }
+      }
+    },
+    {
+      "date": "2026-06-06",
+      "label": "Sat Jun 6 — Saturday settled in",
+      "time": "7:00 PM",
+      "defaultTier": "signature",
+      "options": {
+        "refined": {
+          "id": "la-boca-santa-fe",
+          "name": "La Boca",
+          "city": "Santa Fe",
+          "cuisine": "Spanish tapas",
+          "neighborhood": "Plaza",
+          "address": "72 W Marcy St, Santa Fe, NM 87501",
+          "phone": "+15059823433",
+          "website": "https://www.labocasantafe.com",
+          "priceBand": "$40–65 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/la-boca",
+            "leadTime": "3–5 days"
+          },
+          "notes": ["Locals' favorite", "Sherry program runs deep"],
+          "tags": ["tapas", "plaza", "wine"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "elevated": {
+          "id": "tabla-de-los-santos",
+          "name": "Tabla de los Santos",
+          "city": "Santa Fe",
+          "cuisine": "Modern Southwest",
+          "neighborhood": "Plaza",
+          "address": "210 Don Gaspar Ave, Santa Fe, NM 87501",
+          "phone": "+15059880161",
+          "website": "https://hotelstfrancis.com/dining",
+          "priceBand": "$60–95 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/tabla-de-los-santos",
+            "leadTime": "1–2 weeks"
+          },
+          "notes": ["Inside Hotel St Francis", "Strong vegetable program"],
+          "tags": ["hotel-dining", "patio"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "signature": {
+          "id": "luminaria-santa-fe",
+          "name": "Luminaria",
+          "city": "Santa Fe",
+          "cuisine": "Southwestern",
+          "neighborhood": "Plaza",
+          "address": "211 Old Santa Fe Trail, Santa Fe, NM 87501",
+          "phone": "+15059842400",
+          "website": "https://www.hotelloretto.com/eat-drink/luminaria-restaurant",
+          "priceBand": "$80–120 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/luminaria-restaurant-and-patio",
+            "leadTime": "4–6 weeks"
+          },
+          "notes": ["Patio under the Loretto Chapel", "Live entertainment Fri/Sat in Living Room Bar"],
+          "tags": ["patio", "hotel-dining", "iconic"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        }
+      }
+    },
+    {
+      "date": "2026-06-07",
+      "label": "Sun Jun 7 — Rooftop night",
+      "time": "7:00 PM",
+      "defaultTier": "signature",
+      "options": {
+        "refined": {
+          "id": "cowgirl-bbq-santa-fe",
+          "name": "Cowgirl BBQ",
+          "city": "Santa Fe",
+          "cuisine": "BBQ / Tex-Mex",
+          "neighborhood": "Guadalupe",
+          "address": "319 S Guadalupe St, Santa Fe, NM 87501",
+          "phone": "+15059822565",
+          "website": "https://cowgirlsantafe.com",
+          "priceBand": "$25–45 pp",
+          "booking": { "platform": "walkin", "note": "Patio + live music — arrive by 6 for a table." },
+          "notes": ["Live music nightly", "Patio fire pits"],
+          "tags": ["patio", "live-music", "casual"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "elevated": {
+          "id": "secreto-lounge-st-francis",
+          "name": "Secreto Lounge",
+          "city": "Santa Fe",
+          "cuisine": "Cocktail / Small plates",
+          "neighborhood": "Plaza",
+          "address": "210 Don Gaspar Ave, Santa Fe, NM 87501",
+          "phone": "+15059885700",
+          "website": "https://hotelstfrancis.com/dining",
+          "priceBand": "$50–85 pp",
+          "booking": {
+            "platform": "phone",
+            "leadTime": "Same day",
+            "note": "Walk-up cocktails at the porch; phone for table reservations."
+          },
+          "notes": ["Smoked Sage Margarita is the namesake", "Wraparound porch"],
+          "tags": ["cocktails", "porch", "small-plates"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "signature": {
+          "id": "coyote-cafe-santa-fe",
+          "name": "Coyote Cafe & Rooftop Cantina",
+          "city": "Santa Fe",
+          "cuisine": "Modern Southwest",
+          "neighborhood": "Plaza",
+          "address": "132 W Water St, Santa Fe, NM 87501",
+          "phone": "+15059831615",
+          "website": "https://www.coyotecafe.com",
+          "priceBand": "$85–125 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/coyote-cafe",
+            "leadTime": "4–6 weeks",
+            "rooftopWalkInOnly": true,
+            "note": "OpenTable books the main Cafe only — Rooftop Cantina is walk-in."
+          },
+          "notes": ["Put modern Southwest on the map in 1987", "Reserve downstairs, ask to be moved to the rooftop after"],
+          "tags": ["rooftop", "iconic"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        }
+      }
+    },
+    {
+      "date": "2026-06-09",
+      "label": "Tue Jun 9 — Farewell dinner",
+      "theme": "Last night — patio under the chapel.",
+      "time": "7:00 PM",
+      "defaultTier": "signature",
+      "options": {
+        "refined": {
+          "id": "cafe-pasquals-santa-fe",
+          "name": "Cafe Pasqual's",
+          "city": "Santa Fe",
+          "cuisine": "Pan-Latin / Southwest",
+          "neighborhood": "Plaza",
+          "address": "121 Don Gaspar Ave, Santa Fe, NM 87501",
+          "phone": "+15059839340",
+          "website": "https://pasquals.com",
+          "priceBand": "$45–65 pp",
+          "booking": {
+            "platform": "phone",
+            "leadTime": "Same day or walk-in",
+            "note": "Communal table is first-come; private tables by phone."
+          },
+          "notes": ["Iconic — Katharine Kagel's flagship", "Walkable to the inn"],
+          "tags": ["communal", "iconic", "walk-in-friendly"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "candidate"
+        },
+        "elevated": {
+          "id": "restaurant-martin-farewell",
+          "name": "Restaurant Martín (farewell tasting)",
+          "city": "Santa Fe",
+          "cuisine": "Progressive American",
+          "neighborhood": "Plaza",
+          "address": "526 Galisteo St, Santa Fe, NM 87501",
+          "phone": "+15058200919",
+          "website": "https://www.restaurantmartin.com",
+          "priceBand": "$85–125 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/restaurant-martin",
+            "leadTime": "2–3 weeks",
+            "note": "Request the tasting menu when booking."
+          },
+          "notes": ["Tasting menu option available", "Quiet leafy back patio"],
+          "tags": ["tasting-menu", "patio", "farewell"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        },
+        "signature": {
+          "id": "luminaria-farewell",
+          "name": "Luminaria — chapel patio farewell",
+          "city": "Santa Fe",
+          "cuisine": "Southwestern",
+          "neighborhood": "Plaza",
+          "address": "211 Old Santa Fe Trail, Santa Fe, NM 87501",
+          "phone": "+15059842400",
+          "website": "https://www.hotelloretto.com/eat-drink/luminaria-restaurant",
+          "priceBand": "$80–120 pp",
+          "booking": {
+            "platform": "opentable",
+            "url": "https://www.opentable.com/luminaria-restaurant-and-patio",
+            "leadTime": "4–6 weeks",
+            "note": "Request a patio table under the chapel for the farewell."
+          },
+          "notes": ["Patio under the Loretto Chapel", "Two seatings — request the later for chapel lights"],
+          "tags": ["farewell", "patio", "iconic"],
+          "verifiedAt": "2026-05-25",
+          "verificationStatus": "verified"
+        }
+      }
+    }
+  ]
+}

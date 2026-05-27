@@ -1,0 +1,79 @@
+name: Verify restaurants weekly
+
+# Runs the QA verifier against every template in /templates and opens an
+# issue if any restaurant entry fails (hard-fail flags only — soft 403 WAF
+# blocks from OpenTable are reported but tolerated). Catches OpenTable URL
+# drift before users see broken Reserve buttons in any deployed trip app.
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'   # Mondays at 14:00 UTC (10am EDT / 7am PDT)
+  workflow_dispatch:        # also allow manual runs from the Actions UI
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run verifier against every template
+        id: verify
+        run: |
+          mkdir -p reports
+          FAILED=0
+          for f in templates/*.json; do
+            name=$(basename "$f" .json)
+            echo "::group::Verifying $name"
+            if node scripts/verify.js "$f" --depth=quick --out="reports/$name"; then
+              echo "✓ $name passed"
+            else
+              echo "✗ $name failed"
+              FAILED=1
+            fi
+            echo "::endgroup::"
+          done
+          echo "any_failed=$FAILED" >> "$GITHUB_OUTPUT"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-reports
+          path: reports/
+
+      - name: Open issue on failure
+        if: steps.verify.outputs.any_failed == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs   = require('fs');
+            const path = require('path');
+            const reportsDir = 'reports';
+            const items = [];
+            for (const f of fs.readdirSync(reportsDir)) {
+              if (!f.endsWith('.json')) continue;
+              const r = JSON.parse(fs.readFileSync(path.join(reportsDir, f)));
+              const fails = r.results.filter(x => !x.passed);
+              if (fails.length) {
+                items.push(`### ${f}\n`);
+                for (const x of fails) {
+                  items.push(`- **${x.name}** (${x.tier}, ${x.platform}) — flags: \`${x.flags.join(',')}\`  \n  URL: ${x.url || '_(none)_'}`);
+                }
+              }
+            }
+            const today = new Date().toISOString().slice(0,10);
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              title: `Restaurant verifier: failures detected (${today})`,
+              body: `The weekly QA pass found broken restaurant entries.\n\n${items.join('\n')}\n\nDownload the full \`verify-reports\` artifact from this run for the complete CSV/JSON output.`,
+              labels: ['verify-failure'],
+            });

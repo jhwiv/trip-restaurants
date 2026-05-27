@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+verify-report-*.csv
+verify-report-*.json
+.env
+.env.local
+verify-report-*.csv
+verify-report-*.json

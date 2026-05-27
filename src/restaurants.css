@@ -1,0 +1,232 @@
+/* Trip-restaurants render module styles. Variables are inherited from the
+   host site when defined; sensible fallbacks otherwise. Override anything by
+   targeting .tr-* selectors in the host site's CSS. */
+
+.tr-dining {
+  --tr-ink: var(--ink, #1c1815);
+  --tr-paper: var(--paper, #f7f1e6);
+  --tr-card: var(--card, #fdfaf3);
+  --tr-rule: var(--rule, #d9cdb2);
+  --tr-muted: var(--muted, #8a7f6c);
+  --tr-gold: var(--gold, #b8862c);
+  --tr-rust: var(--rust, #a44d2b);
+
+  font-family: var(--serif, "Cormorant Garamond", Georgia, serif);
+  color: var(--tr-ink);
+}
+
+.tr-header h2 {
+  font-size: clamp(28px, 4vw, 40px);
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.tr-header-sub {
+  color: var(--tr-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+.tr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 14px 16px;
+  background: var(--tr-card);
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  margin-bottom: 28px;
+}
+.tr-legend-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+.tr-legend-label { font-weight: 600; }
+.tr-legend-band  { color: var(--tr-gold); font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
+.tr-legend-blurb { color: var(--tr-muted); font-style: italic; }
+
+.tr-nights { display: grid; gap: 22px; }
+.tr-night {
+  border: 1px solid var(--tr-rule);
+  border-radius: 8px;
+  background: var(--tr-card);
+  padding: 18px 18px 20px;
+}
+.tr-night-head { margin: 0 0 14px; }
+.tr-night-date {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  margin: 0;
+}
+.tr-night-theme {
+  font-style: italic;
+  color: var(--tr-muted);
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.tr-tier-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 0 0 18px;
+}
+.tr-tier-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+  color: var(--tr-ink);
+  font-family: inherit;
+}
+.tr-tier-btn .tr-tier-band {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--tr-gold);
+}
+.tr-tier-btn .tr-tier-label {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.tr-tier-btn:hover { border-color: var(--tr-gold); }
+.tr-tier-btn.is-active {
+  border-color: var(--tr-gold);
+  background: var(--tr-gold);
+  color: #fff;
+}
+.tr-tier-btn.is-active .tr-tier-band { color: rgba(255,255,255,0.85); }
+.tr-tier-btn.is-empty {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tr-active-pick { margin-top: 6px; }
+.tr-fallback-note {
+  color: var(--tr-rust);
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+.tr-missing {
+  color: var(--tr-muted);
+  font-style: italic;
+}
+
+.tr-restaurant { display: block; }
+.tr-name {
+  font-size: clamp(22px, 3vw, 28px);
+  margin: 0 0 4px;
+  letter-spacing: -0.005em;
+}
+.tr-meta {
+  color: var(--tr-muted);
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.tr-meta-price { color: var(--tr-gold); }
+
+.tr-notes {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.tr-notes li { margin: 2px 0; }
+
+.tr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.tr-btn-primary, .tr-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 14px;
+  border-radius: 4px;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.tr-btn-primary {
+  background: var(--tr-gold);
+  color: #fff;
+}
+.tr-btn-primary:hover { filter: brightness(0.95); }
+.tr-btn-secondary {
+  background: transparent;
+  border-color: var(--tr-ink);
+  color: var(--tr-ink);
+}
+.tr-btn-walkin {
+  background: transparent;
+  color: var(--tr-rust);
+  border: 1px dashed var(--tr-rust);
+  cursor: default;
+}
+.tr-btn-link {
+  color: var(--tr-ink);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tr-booking-note {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--tr-muted);
+  line-height: 1.5;
+}
+
+/* Reservation timeline */
+.tr-timeline-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.tr-timeline-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 14px;
+  align-items: start;
+  background: var(--tr-card);
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.tr-timeline-badge {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 8px;
+  border-radius: 3px;
+  text-align: center;
+  background: #efe5cd;
+  color: var(--tr-ink);
+}
+.tr-urgency-high { background: var(--tr-rust); color: #fff; }
+.tr-urgency-med  { background: var(--tr-gold); color: #fff; }
+.tr-urgency-low  { background: transparent; border: 1px solid var(--tr-rule); }
+
+.tr-timeline-name { margin: 0 0 4px; font-weight: 600; }
+.tr-timeline-tier-tag { color: var(--tr-muted); font-weight: 400; font-style: italic; }
+.tr-timeline-note { margin: 0; color: var(--tr-muted); font-size: 14px; line-height: 1.5; }
+.tr-timeline-note a { color: var(--tr-gold); }
+
+@media (max-width: 640px) {
+  .tr-tier-picker { grid-template-columns: 1fr; }
+  .tr-timeline-row { grid-template-columns: 1fr; }
+}

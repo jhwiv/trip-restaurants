@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Trip Restaurants — Santa Fe demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../src/restaurants.css">
+<style>
+  :root {
+    --ink: #1c1815;
+    --paper: #f7f1e6;
+    --card: #fdfaf3;
+    --rule: #d9cdb2;
+    --muted: #8a7f6c;
+    --gold: #b8862c;
+    --rust: #a44d2b;
+    --serif: "Cormorant Garamond", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    line-height: 1.45;
+  }
+  .page { max-width: 720px; margin: 0 auto; padding: 32px 18px 80px; }
+  .demo-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 6px;
+  }
+  .demo-title {
+    font-size: clamp(36px, 6vw, 56px);
+    margin: 0 0 4px;
+    letter-spacing: -0.015em;
+  }
+  .demo-sub { color: var(--muted); margin: 0 0 32px; font-style: italic; }
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 40px 0; }
+  .reset-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .reset-btn:hover { border-color: var(--gold); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<main class="page">
+
+  <p class="demo-eyebrow">@jhwiv/trip-restaurants · demo</p>
+  <h1 class="demo-title">Santa Fe dinners</h1>
+  <p class="demo-sub">Tap a tier on any night — your choices save to this browser and the timeline below updates with you.</p>
+
+  <section id="timeline-section">
+    <h2 style="font-size:24px; margin: 0 0 14px;">Reservation timeline</h2>
+    <div id="timeline"></div>
+  </section>
+
+  <hr>
+
+  <section id="dining-section">
+    <div id="dining"></div>
+  </section>
+
+  <hr>
+
+  <div style="display:flex; gap:12px; align-items:center;">
+    <button class="reset-btn" id="reset">Reset all picks</button>
+    <span style="color:var(--muted); font-size:13px;">Clears saved tier choices for this device.</span>
+  </div>
+
+</main>
+
+<script type="module">
+  import { mountDiningTab, mountReservationTimeline } from '../src/restaurants.js';
+
+  const dataset = await (await fetch('../templates/santa-fe.json')).json();
+  const STORAGE_KEY = 'trip-restaurants-demo-tiers';
+
+  const diningState = mountDiningTab({
+    dataset,
+    mount: document.querySelector('#dining'),
+    storageKey: STORAGE_KEY,
+  });
+
+  const timelineState = mountReservationTimeline({
+    dataset,
+    mount: document.querySelector('#timeline'),
+    storageKey: STORAGE_KEY,
+  });
+
+  // Cross-update: when the dining tab changes a tier, refresh the timeline.
+  // (Both views share the same storage key, but they hold separate in-memory
+  // state instances. A 'storage' event would only fire across tabs, so we
+  // hook a 'click' listener on the dining tab to refresh the timeline.)
+  document.querySelector('#dining').addEventListener('click', e => {
+    if (e.target.closest('.tr-tier-btn')) {
+      // Re-read from localStorage and rebuild the timeline.
+      const fresh = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      Object.assign(timelineState.choices, fresh);
+      const root = document.querySelector('#timeline');
+      root.innerHTML = '';
+      mountReservationTimeline({ dataset, mount: root, storageKey: STORAGE_KEY });
+    }
+  });
+
+  document.querySelector('#reset').addEventListener('click', () => {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+</script>
+
+</body>
+</html>

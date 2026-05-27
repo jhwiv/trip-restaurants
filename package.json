@@ -1,0 +1,33 @@
+{
+  "name": "@jhwiv/trip-restaurants",
+  "version": "0.1.0",
+  "description": "Reusable restaurant module for trip itinerary apps. Provides a canonical restaurant schema, a QA verifier that catches broken OpenTable/Resy links and stale phones, and a vanilla-JS render module with per-night Refined / Elevated / Signature tier selection.",
+  "type": "module",
+  "main": "src/restaurants.js",
+  "files": [
+    "src",
+    "schema.json",
+    "templates",
+    "README.md"
+  ],
+  "scripts": {
+    "verify": "node scripts/verify.js",
+    "verify:full": "node scripts/verify.js --depth=full",
+    "verify:quick": "node scripts/verify.js --depth=quick",
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "trip-planning",
+    "itinerary",
+    "restaurants",
+    "opentable",
+    "resy",
+    "qa"
+  ],
+  "author": "jhwiv",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}
