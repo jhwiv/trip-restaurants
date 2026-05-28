@@ -5,7 +5,7 @@
     "startDate": "2026-06-03",
     "endDate": "2026-06-10",
     "currency": "USD",
-    "notes": "Pool-based lineup updated 2026-05-27. Every restaurant lives in its real price band ($$ Refined / $$$ Elevated / $$$$ Signature). Each night displays the full pool; you pick what you want at the price you want — nothing is pre-selected. Restaurants closed on a given night's weekday are dimmed.",
+    "notes": "Pool-based lineup updated 2026-05-27 (added Luminaria + Mon Jun 8 night). Every restaurant lives in its real price band ($$ Refined / $$$ Elevated / $$$$ Signature). Each night displays the full pool; you pick what you want at the price you want — nothing is pre-selected. Restaurants closed on a given night's weekday are dimmed.",
     "party": {
       "size": 1,
       "defaultTime": "19:00",
@@ -657,6 +657,48 @@
         ]
       },
       "tier": "elevated"
+    },
+    {
+      "id": "luminaria-loretto",
+      "name": "Luminaria Restaurant & Patio",
+      "city": "Santa Fe",
+      "cuisine": "Contemporary American / Southwestern",
+      "neighborhood": "Plaza (Inn & Spa at Loretto)",
+      "address": "211 Old Santa Fe Trail, Santa Fe, NM 87501",
+      "phone": "+15059847915",
+      "website": "https://www.hotelloretto.com/eat-drink/luminaria-restaurant",
+      "priceBand": "$31–50 entrees",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/luminaria-restaurant-and-patio",
+        "leadTime": "1–2 weeks",
+        "note": "Request a patio table under the chapel for the farewell"
+      },
+      "notes": [
+        "Inside Inn & Spa at Loretto — quiet, candlelit patio under the chapel",
+        "Globally inspired Southwestern menu; strong for special-occasion farewells",
+        "Tue–Sat dinner only — closed Sun & Mon",
+        "Direct reservations: (505) 984-7915 or hotel desk (505) 984-2400"
+      ],
+      "tags": [
+        "plaza",
+        "hotel-restaurant",
+        "patio",
+        "farewell"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Tue–Sat 5–9pm (Thu–Sat to 10pm)",
+        "openDays": [
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat"
+        ]
+      },
+      "tier": "elevated"
     }
   ],
   "nights": [
@@ -688,6 +730,12 @@
       "date": "2026-06-07",
       "label": "Sun Jun 7 — Plaza wander",
       "theme": "Galleries open late, slow Sunday pace. Many top kitchens are closed today.",
+      "time": "7:00 PM"
+    },
+    {
+      "date": "2026-06-08",
+      "label": "Mon Jun 8 — Canyon Road encore",
+      "theme": "Last full day; late dinner before Tuesday's farewell.",
       "time": "7:00 PM"
     },
     {
