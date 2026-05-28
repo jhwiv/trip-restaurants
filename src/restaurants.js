@@ -20,8 +20,12 @@
 export function mountDiningTab({ dataset, mount, storageKey = 'trip-restaurants' }) {
   const state = new PickerState(dataset, storageKey);
   const root = el('div', { class: 'tr-dining' });
-  root.append(renderHeader(dataset));
-  root.append(renderNights(dataset, state));
+  const rerenderAll = () => {
+    root.innerHTML = '';
+    root.append(renderHeader(dataset, state, rerenderAll));
+    root.append(renderNights(dataset, state));
+  };
+  rerenderAll();
   mount.innerHTML = '';
   mount.append(root);
   return state;
@@ -156,11 +160,48 @@ function formatShortDate(dt) {
 
 // ---------- render: header ----------
 
-function renderHeader(dataset) {
+function renderHeader(dataset, state, onChange) {
   const wrap = el('div', { class: 'tr-header' });
   wrap.append(el('h2', {}, 'Dinners'));
   wrap.append(el('p', { class: 'tr-header-sub' },
     `Every night shows the full Santa Fe lineup, grouped by price. Pick what you want for each night — nothing is pre-selected. Same restaurant can appear on multiple nights. Restaurants closed on a given weekday are dimmed.`));
+
+  // Party-size + default-time controls. These drive deep-link prefills.
+  const config = el('div', { class: 'tr-trip-config' });
+  const partyLabel = el('label', { class: 'tr-config-label', for: 'tr-party-size' }, 'Party size');
+  const partyInput = el('input', {
+    id: 'tr-party-size',
+    type: 'number',
+    min: '1',
+    max: '12',
+    class: 'tr-config-input tr-config-input-num',
+    'aria-label': 'Party size',
+  });
+  partyInput.value = state.party.size;
+  partyInput.addEventListener('change', () => {
+    const n = Math.max(1, Math.min(12, Number(partyInput.value) || 2));
+    state.setParty({ size: n });
+    partyInput.value = n;
+    onChange();
+  });
+  const timeLabel = el('label', { class: 'tr-config-label', for: 'tr-default-time' }, 'Default dinner time');
+  const timeInput = el('input', {
+    id: 'tr-default-time',
+    type: 'time',
+    class: 'tr-config-input tr-config-input-time',
+    'aria-label': 'Default dinner time',
+  });
+  timeInput.value = toHHMM(state.party.defaultTime || '19:00');
+  timeInput.addEventListener('change', () => {
+    state.setParty({ defaultTime: timeInput.value || '19:00' });
+    onChange();
+  });
+  config.append(
+    el('div', { class: 'tr-config-group' }, partyLabel, partyInput),
+    el('div', { class: 'tr-config-group' }, timeLabel, timeInput),
+  );
+  wrap.append(config);
+
   const legend = el('div', { class: 'tr-legend' });
   for (const [id, t] of Object.entries(dataset.tiers || {})) {
     legend.append(el('div', { class: `tr-legend-item tr-legend-${id}` },
@@ -304,10 +345,13 @@ function renderRestaurantHead(dataset, r) {
 
 function renderPoolBlock(dataset, night, state, rerender) {
   const pickedId = state.pickFor(night);
-  const block = el('details', { class: 'tr-pool', open: pickedId ? null : 'open' });
-  block.append(el('summary', { class: 'tr-pool-summary' },
-    pickedId ? 'Browse other options' : 'Pick a restaurant',
-  ));
+  // Always collapsed by default so the empty-state page isn't a 15-restaurant
+  // firehose per night. User explicitly opens to browse.
+  const block = el('details', { class: 'tr-pool' });
+  const summaryLabel = pickedId
+    ? 'Browse other options'
+    : `Pick a restaurant for this night →`;
+  block.append(el('summary', { class: 'tr-pool-summary' }, summaryLabel));
   const wd = weekdayOf(night.date);
   const byTier = { refined: [], elevated: [], signature: [] };
   for (const r of dataset.restaurants) {

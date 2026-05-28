@@ -48,6 +48,42 @@
 .tr-legend-band  { color: var(--tr-gold); font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
 .tr-legend-blurb { color: var(--tr-muted); font-style: italic; }
 
+/* ---------- Trip-level config (party size, default time) ---------- */
+.tr-trip-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  margin: 0 0 16px;
+}
+.tr-config-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tr-config-label {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-config-input {
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 15px;
+  border: 1px solid var(--tr-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--tr-ink);
+}
+.tr-config-input:focus { outline: 2px solid var(--tr-gold); outline-offset: -1px; }
+.tr-config-input-num { width: 64px; text-align: center; }
+.tr-config-input-time { width: 110px; }
+
 /* ---------- Night card ---------- */
 .tr-nights { display: grid; gap: 22px; }
 .tr-night {
@@ -282,14 +318,16 @@
 .tr-pool[open] { background: #fff; }
 .tr-pool-summary {
   cursor: pointer;
-  padding: 12px 16px;
+  padding: 14px 16px;
   font-family: var(--mono, ui-monospace, monospace);
   font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--tr-ink);
+  color: var(--tr-gold);
   list-style: none;
+  font-weight: 600;
 }
+.tr-pool-summary:hover { background: rgba(184,134,44,0.06); }
 .tr-pool-summary::-webkit-details-marker { display: none; }
 .tr-pool-summary::before {
   content: '▸ ';
