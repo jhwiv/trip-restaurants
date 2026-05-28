@@ -8,7 +8,7 @@
   --tr-paper: var(--paper, #f7f1e6);
   --tr-card: var(--card, #fdfaf3);
   --tr-rule: var(--rule, #d9cdb2);
-  --tr-muted: var(--muted, #8a7f6c);
+  --tr-muted: var(--muted, #4a4338);
   --tr-gold: var(--gold, #b8862c);
   --tr-rust: var(--rust, #a44d2b);
   --tr-green: var(--green, #4a7a5c);
@@ -863,9 +863,10 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
   letter-spacing: -0.01em;
 }
 .tr-tier-blurb {
-  font-size: 13.5px;
+  font-size: 14px;
   font-style: italic;
-  color: var(--tr-muted, #8a7f6c);
+  color: var(--tr-ink, #1c1815);
+  opacity: 0.78;
   line-height: 1.45;
 }
 .tr-tier-lead {
@@ -876,8 +877,9 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
   margin-top: 4px;
 }
 .tr-tier-count {
-  font-size: 11px;
-  color: var(--tr-muted, #8a7f6c);
+  font-size: 11.5px;
+  color: var(--tr-ink, #1c1815);
+  opacity: 0.72;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-family: var(--mono, ui-monospace, monospace);
@@ -964,8 +966,9 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
 }
 .tr-tier-row-meta {
   margin: 0;
-  font-size: 13px;
-  color: var(--tr-muted, #8a7f6c);
+  font-size: 13.5px;
+  color: var(--tr-ink, #1c1815);
+  opacity: 0.82;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;

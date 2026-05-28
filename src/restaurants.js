@@ -126,6 +126,31 @@ class PickerState {
     this.picks    = this._loadObj(this.keys.picks);
     this.bookings = this._loadObj(this.keys.bookings);
     this.notes    = this._loadObj(this.keys.notes);
+
+    // One-time migration: tier-picker release no longer pre-seeds curated
+    // picks, but earlier sessions saved 7 default picks to localStorage.
+    // Clear those once so users see the new empty / tier-picker state.
+    // Picks the user actively saved after the migration ran are preserved.
+    if (typeof localStorage !== 'undefined') {
+      const migKey = `${baseKey}-mig-tierpicker-2026-05`;
+      try {
+        if (!localStorage.getItem(migKey)) {
+          const validIds = new Set((dataset.restaurants || []).map(r => r.id));
+          // If every saved pick maps to a valid restaurant AND looks like the
+          // old curated seed (one pick per night, all 7 set), drop them.
+          const nightDates = new Set((dataset.nights || []).map(n => n.date));
+          const pickEntries = Object.entries(this.picks);
+          const allOnTripNights = pickEntries.every(([d]) => nightDates.has(d));
+          const allValidIds = pickEntries.every(([, id]) => validIds.has(id));
+          const looksLikeSeed = pickEntries.length === (dataset.nights || []).length && pickEntries.length > 0 && allOnTripNights && allValidIds && Object.keys(this.bookings).length === 0;
+          if (looksLikeSeed) {
+            this.picks = {};
+            this._save(this.keys.picks, this.picks);
+          }
+          localStorage.setItem(migKey, '1');
+        }
+      } catch {}
+    }
     // Party overrides — start from dataset default, then merge stored
     this.party    = Object.assign(
       { size: 1, defaultTime: '19:00' },
@@ -284,9 +309,8 @@ function formatShortDate(dt) {
 
 function renderHeader(dataset, state, onChange) {
   const wrap = el('div', { class: 'tr-header' });
-  wrap.append(el('h2', {}, 'Dinners'));
-  wrap.append(el('p', { class: 'tr-header-sub' },
-    `Tap any night to expand it. You’ll see two editor’s suggestions plus the full Santa Fe lineup — filter by walkability, price, or open-that-night. Your picks here also show up on each day’s tab.`));
+  // (Section heading + intro are rendered by the host page's .lede;
+  // don't duplicate them here.)
 
   // Party-size + default-time controls. These drive deep-link prefills.
   const config = el('div', { class: 'tr-trip-config' });
