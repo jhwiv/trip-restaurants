@@ -591,19 +591,69 @@ function renderSuggestionCard(dataset, r, night, state, rerender, badgeLabel) {
   return card;
 }
 
+const TIER_RANK = { refined: 1, elevated: 2, signature: 3 };
+
+function pickBackupRestaurant(dataset, night, pickedRestaurant) {
+  // Choose a backup that NEVER exceeds the user's picked tier. Strategy:
+  //   1. Curated night.backup if it satisfies the cap, is open, and isn't
+  //      the user's pick.
+  //   2. Closest-walking restaurant in the SAME tier as the pick.
+  //   3. Closest-walking restaurant in a LOWER tier.
+  //   4. null — hide the backup block entirely.
+  if (!pickedRestaurant) return null;
+  const pickTier = pickedRestaurant.tier;
+  const pickRank = TIER_RANK[pickTier] ?? 3;
+  const weekday = weekdayOf(night.date);
+  const candidates = (dataset.restaurants || []).filter(r => {
+    if (r.id === pickedRestaurant.id) return false;
+    if (!isOpenOn(r, weekday)) return false;
+    const rRank = TIER_RANK[r.tier] ?? 99;
+    return rRank <= pickRank;
+  });
+  if (!candidates.length) return null;
+
+  // 1. Curated backup, if it passes the cap + still on the candidate list.
+  if (night.backup) {
+    const curated = candidates.find(r => r.id === night.backup);
+    if (curated) return curated;
+  }
+
+  // 2/3. Walkable-first, by tier (same tier preferred, then descending).
+  for (let r = pickRank; r >= 1; r--) {
+    const inRank = candidates.filter(c => (TIER_RANK[c.tier] ?? 99) === r);
+    if (!inRank.length) continue;
+    inRank.sort((a, b) => {
+      const ta = a.travelFromHotel, tb = b.travelFromHotel;
+      const aw = ta?.mode === 'walk' ? 0 : 1;
+      const bw = tb?.mode === 'walk' ? 0 : 1;
+      if (aw !== bw) return aw - bw;
+      const am = ta?.walkMinutes ?? ta?.driveMinutes ?? 999;
+      const bm = tb?.walkMinutes ?? tb?.driveMinutes ?? 999;
+      if (am !== bm) return am - bm;
+      return a.name.localeCompare(b.name);
+    });
+    return inRank[0];
+  }
+  return null;
+}
+
 function renderBackupBlock(dataset, night, state, rerender) {
-  // Render the curated backup restaurant for this night, if any.
-  // Hidden when the user's current pick IS the backup (no point showing twice).
-  const backupId = night.backup;
-  if (!backupId) return el('div', { class: 'tr-backup-empty' });
+  // Show a backup ONLY when it fits the user's chosen price tier or below.
+  // Hidden when no pick yet, or when no suitable backup exists.
   const pickId = state.pickFor(night);
-  if (pickId === backupId) return el('div', { class: 'tr-backup-empty' });
-  const r = dataset.restaurants.find(x => x.id === backupId);
+  if (!pickId) return el('div', { class: 'tr-backup-empty' });
+  const pickedR = dataset.restaurants.find(x => x.id === pickId);
+  if (!pickedR) return el('div', { class: 'tr-backup-empty' });
+  const r = pickBackupRestaurant(dataset, night, pickedR);
   if (!r) return el('div', { class: 'tr-backup-empty' });
+  const sameTier = r.tier === pickedR.tier;
+  const note = sameTier
+    ? ' · If your first choice falls through'
+    : ' · Easier-to-book alternative at the same or lower price';
   const block = el('div', { class: 'tr-backup-block' });
   block.append(el('p', { class: 'tr-backup-label' },
     el('span', { class: 'tr-backup-chip' }, 'Backup'),
-    el('span', { class: 'tr-backup-label-text' }, ' · If your first choice falls through'),
+    el('span', { class: 'tr-backup-label-text' }, note),
   ));
   block.append(renderBackupCard(dataset, r, night, state, rerender));
   return block;
