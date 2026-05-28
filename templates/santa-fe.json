@@ -5,7 +5,12 @@
     "startDate": "2026-06-03",
     "endDate": "2026-06-10",
     "currency": "USD",
-    "notes": "Lineup updated 2026-05-27 after full QA pass + editorial peer review. El Farol permanently closed; Tabla de los Santos rebranded to Wolf and Roadrunner; Luminaria dropped from Signature; La Choza dropped (redundant with The Shed); Sazón and Restaurant Martín promoted to Signature; Anasazi and Coyote Cafe demoted to Elevated; Alkemē, Joseph's Culinary Pub, and Zacatlán added. Every restaurant lives in its real price band — no Signature ($$$$) restaurants are used as fillers in Refined or Elevated tiers."
+    "notes": "Pool-based lineup updated 2026-05-27. Every restaurant lives in its real price band ($$ Refined / $$$ Elevated / $$$$ Signature). Each night displays the full pool; you pick what you want at the price you want — nothing is pre-selected. Restaurants closed on a given night's weekday are dimmed.",
+    "party": {
+      "size": 2,
+      "defaultTime": "19:00",
+      "dietary": []
+    }
   },
   "tiers": {
     "refined": {
@@ -27,348 +32,669 @@
       "leadTime": "3–4 weeks"
     }
   },
+  "restaurants": [
+    {
+      "id": "the-shed-santa-fe",
+      "name": "The Shed",
+      "city": "Santa Fe",
+      "cuisine": "New Mexican",
+      "neighborhood": "Plaza",
+      "address": "113½ E Palace Ave, Santa Fe, NM 87501",
+      "phone": "+15059829030",
+      "website": "https://sfshed.com",
+      "priceBand": "$25–40 pp",
+      "booking": {
+        "platform": "phone",
+        "note": "Dinner is phone reservations or walk-in; call (505) 982-9030. Closed Sundays."
+      },
+      "notes": [
+        "70-year Santa Fe institution since 1953",
+        "Red chile enchiladas are the order",
+        "End the trip on the food you came for: red chile enchiladas",
+        "Tuesday is the calmest service night"
+      ],
+      "tags": [
+        "walk-in-friendly",
+        "iconic",
+        "casual",
+        "farewell"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Mon–Sat 5–9pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat"
+        ]
+      },
+      "tier": "refined"
+    },
+    {
+      "id": "anasazi-restaurant",
+      "name": "Anasazi Restaurant",
+      "city": "Santa Fe",
+      "cuisine": "Contemporary American / Southwest",
+      "neighborhood": "Plaza",
+      "address": "113 Washington Ave, Santa Fe, NM 87501",
+      "phone": "+15059883030",
+      "website": "https://www.rosewoodhotels.com/en/inn-of-the-anasazi-santa-fe/dining/anasazi-restaurant",
+      "priceBand": "$65–95 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/r/anasazi-restaurant",
+        "leadTime": "1–2 weeks"
+      },
+      "notes": [
+        "Rosewood Inn of the Anasazi hotel restaurant",
+        "Open daily 5–9:30pm — useful arrival-night fallback close to Plaza",
+        "Peer review note: setting and convenience are the credentials, not the cooking"
+      ],
+      "tags": [
+        "hotel-restaurant",
+        "plaza-walkable",
+        "open-daily"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily 5–9:30pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "elevated"
+    },
+    {
+      "id": "sazon-santa-fe",
+      "name": "Sazón",
+      "city": "Santa Fe",
+      "cuisine": "Contemporary Mexican",
+      "neighborhood": "Plaza",
+      "address": "221 Shelby St, Santa Fe, NM 87501",
+      "phone": "+15059838604",
+      "website": "https://sazonsantafe.com",
+      "priceBand": "$95–145 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/sazon-santa-fe",
+        "leadTime": "2–3 weeks",
+        "note": "Chef's Degustación is phone-only"
+      },
+      "notes": [
+        "Chef Fernando Olea — 2022 James Beard Best Chef Southwest",
+        "#1 restaurant in Santa Fe on Tripadvisor",
+        "Mon–Sat, last seating 8pm",
+        "Business-casual dress code; no children under 10"
+      ],
+      "tags": [
+        "james-beard-winner",
+        "tasting-menu",
+        "intimate"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Mon–Sat 5–8pm (last seating 8pm)",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat"
+        ]
+      },
+      "tier": "signature"
+    },
+    {
+      "id": "la-boca-santa-fe",
+      "name": "La Boca",
+      "city": "Santa Fe",
+      "cuisine": "Spanish tapas",
+      "neighborhood": "Downtown",
+      "address": "72 W Marcy St, Santa Fe, NM 87501",
+      "phone": "+15059823433",
+      "website": "http://www.labocasantafe.com",
+      "priceBand": "$40–65 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/r/la-boca-santa-fe",
+        "leadTime": "1 week"
+      },
+      "notes": [
+        "Chef James Campbell Caruso — 8× James Beard Best Chef SW nominee (2008–2014)",
+        "Canyon Road's best Spanish offering now that El Farol is closed",
+        "Sister bar Taberna next door for cocktails"
+      ],
+      "tags": [
+        "tapas",
+        "wine-program",
+        "chef-driven"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Wed–Sun, dinner from 5pm",
+        "openDays": [
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "refined"
+    },
+    {
+      "id": "wolf-and-roadrunner",
+      "name": "Wolf and Roadrunner",
+      "city": "Santa Fe",
+      "cuisine": "Contemporary Southwest / wood-fire",
+      "neighborhood": "Plaza (Hotel St. Francis)",
+      "address": "210 Don Gaspar Ave, Santa Fe, NM 87501",
+      "phone": "+15059926342",
+      "website": "https://www.hotelstfrancis.com/eat-drink/wolf-and-roadrunner",
+      "priceBand": "$55–85 pp",
+      "booking": {
+        "platform": "resy",
+        "url": "https://resy.com/cities/santa-fe-nm/venues/wolf-and-roadrunner",
+        "leadTime": "1–2 weeks",
+        "note": "Rebranded from Tabla de los Santos. Thu–Sun only."
+      },
+      "notes": [
+        "Replaces Tabla de los Santos (rebrand, 2025)",
+        "Wood-fire / seasonal concept",
+        "Thu–Fri 3–8pm, Sat–Sun 1–8pm"
+      ],
+      "tags": [
+        "new-concept",
+        "hotel-restaurant",
+        "limited-days"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Thu–Fri 3–8pm, Sat–Sun 1–8pm",
+        "openDays": [
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "elevated"
+    },
+    {
+      "id": "the-compound-restaurant",
+      "name": "The Compound",
+      "city": "Santa Fe",
+      "cuisine": "Contemporary American",
+      "neighborhood": "Canyon Road",
+      "address": "653 Canyon Rd, Santa Fe, NM 87501",
+      "phone": "+15059824353",
+      "website": "https://compoundrestaurant.com",
+      "priceBand": "$150–250 pp",
+      "booking": {
+        "platform": "resy",
+        "url": "https://resy.com/cities/santa-fe-nm/venues/the-compound-restaurant",
+        "leadTime": "3–4 weeks",
+        "note": "Phone reservations preferred: (505) 982-4353. Not on OpenTable."
+      },
+      "notes": [
+        "**Blowout meal of the trip.** 2024 James Beard Outstanding Restaurant finalist — one of five in the country",
+        "Chef-owner Mark Kiffin — 2005 JB Best Chef Southwest winner",
+        "500+ wine selections",
+        "Closed Sundays",
+        "Historic adobe compound on Canyon Road",
+        "The peer review's confirmed best farewell meal",
+        "2024 James Beard Outstanding Restaurant finalist",
+        "If already used Thu Jun 4 — Sazón is the alternate farewell"
+      ],
+      "tags": [
+        "james-beard-finalist",
+        "wine-program",
+        "blowout",
+        "canyon-road",
+        "farewell"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Mon–Sat 5–8:30pm, Sun 5–7:30pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "signature"
+    },
+    {
+      "id": "zacatlan-santa-fe",
+      "name": "Zacatlán",
+      "city": "Santa Fe",
+      "cuisine": "Contemporary Mexican",
+      "neighborhood": "Railyard",
+      "address": "317 Aztec St, Santa Fe, NM 87501",
+      "phone": "+15057805174",
+      "website": "https://www.zacatlanrestaurant.com",
+      "priceBand": "$45–75 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/r/zacatlan-santa-fe",
+        "leadTime": "1 week"
+      },
+      "notes": [
+        "Chef Eduardo Rodriguez (former Coyote Cafe exec sous) — 2024 James Beard Best Chef SW nominee",
+        "Mole-driven, whole red snapper, Cochinita Pibil",
+        "Distinct from Sazón — Railyard setting, à la carte focus"
+      ],
+      "tags": [
+        "james-beard-nominee",
+        "railyard",
+        "contemporary-mexican"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily 5–9pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "refined"
+    },
+    {
+      "id": "josephs-culinary-pub",
+      "name": "Joseph's Culinary Pub",
+      "city": "Santa Fe",
+      "cuisine": "Eclectic American",
+      "neighborhood": "Guadalupe / Railyard",
+      "address": "428 Agua Fria St, Santa Fe, NM 87501",
+      "phone": "+15059821272",
+      "website": "https://www.josephsculinarypub.com",
+      "priceBand": "$55–85 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/r/josephs-culinary-pub-santa-fe",
+        "leadTime": "1–2 weeks"
+      },
+      "notes": [
+        "Chef Joseph Wrede — Food & Wine Best New Chef 2000, multi-year JB semifinalist (2008, 2010, 2025)",
+        "Duck confit pad thai is the signature",
+        "Wed–Sun 5–9pm"
+      ],
+      "tags": [
+        "james-beard-semifinalist",
+        "iconic-chef",
+        "eclectic"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Wed–Sun 5–9pm",
+        "openDays": [
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "elevated"
+    },
+    {
+      "id": "geronimo-canyon",
+      "name": "Geronimo",
+      "city": "Santa Fe",
+      "cuisine": "Global / contemporary",
+      "neighborhood": "Canyon Road",
+      "address": "724 Canyon Rd, Santa Fe, NM 87501",
+      "phone": "+15059821500",
+      "website": "https://www.geronimorestaurant.com",
+      "priceBand": "$110–175 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/geronimo-santa-fe",
+        "leadTime": "3–4 weeks",
+        "note": "No children under 10"
+      },
+      "notes": [
+        "1756 adobe — irreplaceable setting",
+        "Elk tenderloin, Maine lobster tails",
+        "Entrees $44–$64",
+        "25+ years of consistent fine dining",
+        "One of the few Canyon Road Signature rooms open Sundays",
+        "1756 adobe; elk tenderloin"
+      ],
+      "tags": [
+        "canyon-road",
+        "historic",
+        "fine-dining",
+        "open-sunday"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily 4:45–11pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "signature"
+    },
+    {
+      "id": "cowgirl-bbq",
+      "name": "Cowgirl BBQ",
+      "city": "Santa Fe",
+      "cuisine": "BBQ / Southwest",
+      "neighborhood": "Guadalupe / Railyard",
+      "address": "319 S Guadalupe St, Santa Fe, NM 87501",
+      "phone": "+15059822565",
+      "website": "https://cowgirlsantafe.com",
+      "priceBand": "$25–45 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/r/cowgirl-santa-fe",
+        "leadTime": "Same-day to 1 week",
+        "note": "OpenTable for parties of 5+; smaller parties may walk in"
+      },
+      "notes": [
+        "Live music weekend patio",
+        "Locally beloved low-key option",
+        "Genuine Santa Fe contrast night"
+      ],
+      "tags": [
+        "casual",
+        "live-music",
+        "patio"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily 11:30am–9pm (Mon, Fri–Sat to 10pm)",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "refined"
+    },
+    {
+      "id": "izanami-ten-thousand-waves",
+      "name": "Izanami",
+      "city": "Santa Fe",
+      "cuisine": "Japanese izakaya",
+      "neighborhood": "Ten Thousand Waves (north of Plaza)",
+      "address": "21 Ten Thousand Waves Way, Santa Fe, NM 87501",
+      "phone": "+15059826355",
+      "website": "https://tenthousandwaves.com/food",
+      "priceBand": "$55–95 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/izanami",
+        "leadTime": "2 weeks",
+        "note": "Pair with a Ten Thousand Waves spa visit."
+      },
+      "notes": [
+        "2014 James Beard Best New Restaurant semifinalist",
+        "Mountain-spa setting unique to the Southwest",
+        "About 4 miles north of Plaza — book a car"
+      ],
+      "tags": [
+        "james-beard-semifinalist",
+        "destination",
+        "spa-pairing"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily 5–8:45pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "elevated"
+    },
+    {
+      "id": "alkeme-santa-fe",
+      "name": "Alkemē at Open Kitchen",
+      "city": "Santa Fe",
+      "cuisine": "Vietnamese / Taiwanese / Korean tasting",
+      "neighborhood": "Plaza",
+      "address": "227 Don Gaspar Ave, Santa Fe, NM 87501",
+      "phone": "+15059829704",
+      "website": "https://alkeme-santafe.com",
+      "priceBand": "$120–175 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/restaurant/profile/1310200",
+        "leadTime": "2–3 weeks"
+      },
+      "notes": [
+        "Chef-Owner Hue-Chan Karels — 2024 James Beard Best New Restaurant semifinalist",
+        "Three rotating 5-course tasting menus, $75–$85 plus wine",
+        "Santa Fe's only serious tasting-menu destination",
+        "Tue–Sat, last seating 8:45pm"
+      ],
+      "tags": [
+        "james-beard-semifinalist",
+        "tasting-menu",
+        "asian-heritage"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Tue–Sat 5–8:45pm",
+        "openDays": [
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat"
+        ]
+      },
+      "tier": "signature"
+    },
+    {
+      "id": "cafe-pasquals",
+      "name": "Cafe Pasqual's",
+      "city": "Santa Fe",
+      "cuisine": "New Mexican / global",
+      "neighborhood": "Plaza",
+      "address": "121 Don Gaspar Ave, Santa Fe, NM 87501",
+      "phone": "+15059839340",
+      "website": "https://pasquals.com",
+      "priceBand": "$45–65 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/r/cafe-pasquals-santa-fe",
+        "leadTime": "1–2 weeks",
+        "note": "Open Sundays — one of the few top spots that is"
+      },
+      "notes": [
+        "Katharine Kagel — 1999 James Beard Best Chef SW nominee",
+        "Mural-covered, communal-table icon",
+        "Reservations strongly recommended for dinner"
+      ],
+      "tags": [
+        "iconic",
+        "open-sunday",
+        "communal"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily dinner; Sun–Thu 5:30–9:30pm, Fri–Sat to 10pm",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "refined"
+    },
+    {
+      "id": "coyote-cafe-rooftop",
+      "name": "Coyote Cafe & Rooftop Cantina",
+      "city": "Santa Fe",
+      "cuisine": "Southwest",
+      "neighborhood": "Plaza",
+      "address": "132 W Water St, Santa Fe, NM 87501",
+      "phone": "+15059831615",
+      "website": "https://coyotecafe.com",
+      "priceBand": "$65–95 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/coyote-cafe",
+        "leadTime": "1–2 weeks",
+        "note": "Rooftop Cantina is seasonal walk-in only — main dining room books."
+      },
+      "notes": [
+        "Mark Miller's 1987 Southwest classic — coasting on 1990s reputation per recent local critics",
+        "Open Sundays, useful when other top kitchens are dark",
+        "Demoted from Signature after peer review"
+      ],
+      "tags": [
+        "open-sunday",
+        "historic",
+        "rooftop"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Daily 5pm–close",
+        "openDays": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "elevated"
+    },
+    {
+      "id": "restaurant-martin-farewell-tasting",
+      "name": "Restaurant Martín",
+      "city": "Santa Fe",
+      "cuisine": "Progressive American",
+      "neighborhood": "Don Gaspar",
+      "address": "526 Galisteo St, Santa Fe, NM 87501",
+      "phone": "+15058200919",
+      "website": "https://www.restaurantmartin.com",
+      "priceBand": "$85–125 pp",
+      "booking": {
+        "platform": "opentable",
+        "url": "https://www.opentable.com/restaurant-martin",
+        "leadTime": "2–3 weeks",
+        "note": "Ask for the tasting menu when booking"
+      },
+      "notes": [
+        "Chef Martín Rios — multi-year James Beard Best Chef SW nominee (2015–2018, 2022)",
+        "Tasting menu format is the way to go for a farewell",
+        "Wed–Sun (Tue June 9 — confirm open)"
+      ],
+      "tags": [
+        "james-beard-nominee",
+        "tasting-menu",
+        "farewell"
+      ],
+      "verifiedAt": "2026-05-27",
+      "verificationStatus": "verified",
+      "hours": {
+        "dinner": "Wed–Sun 5–9pm",
+        "openDays": [
+          "wed",
+          "thu",
+          "fri",
+          "sat",
+          "sun"
+        ]
+      },
+      "tier": "elevated"
+    }
+  ],
   "nights": [
     {
       "date": "2026-06-03",
       "label": "Wed Jun 3 — Arrival dinner",
       "theme": "Near the Plaza, low-key after the flight.",
-      "time": "7:00 PM",
-      "defaultTier": "elevated",
-      "options": {
-        "refined": {
-          "id": "the-shed-santa-fe",
-          "name": "The Shed",
-          "city": "Santa Fe",
-          "cuisine": "New Mexican",
-          "neighborhood": "Plaza",
-          "address": "113½ E Palace Ave, Santa Fe, NM 87501",
-          "phone": "+15059829030",
-          "website": "https://sfshed.com",
-          "priceBand": "$25–40 pp",
-          "booking": { "platform": "phone", "note": "Dinner is phone reservations or walk-in; call (505) 982-9030. Closed Sundays." },
-          "notes": ["70-year Santa Fe institution since 1953", "Red chile enchiladas are the order"],
-          "tags": ["walk-in-friendly", "iconic", "casual"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "elevated": {
-          "id": "anasazi-restaurant",
-          "name": "Anasazi Restaurant",
-          "city": "Santa Fe",
-          "cuisine": "Contemporary American / Southwest",
-          "neighborhood": "Plaza",
-          "address": "113 Washington Ave, Santa Fe, NM 87501",
-          "phone": "+15059883030",
-          "website": "https://www.rosewoodhotels.com/en/inn-of-the-anasazi-santa-fe/dining/anasazi-restaurant",
-          "priceBand": "$65–95 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/r/anasazi-restaurant", "leadTime": "1–2 weeks" },
-          "notes": ["Rosewood Inn of the Anasazi hotel restaurant", "Open daily 5–9:30pm — useful arrival-night fallback close to Plaza", "Peer review note: setting and convenience are the credentials, not the cooking"],
-          "tags": ["hotel-restaurant", "plaza-walkable", "open-daily"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "signature": {
-          "id": "sazon-santa-fe",
-          "name": "Sazón",
-          "city": "Santa Fe",
-          "cuisine": "Contemporary Mexican",
-          "neighborhood": "Plaza",
-          "address": "221 Shelby St, Santa Fe, NM 87501",
-          "phone": "+15059838604",
-          "website": "https://sazonsantafe.com",
-          "priceBand": "$95–145 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/sazon-santa-fe", "leadTime": "2–3 weeks", "note": "Chef's Degustación is phone-only" },
-          "notes": ["Chef Fernando Olea — 2022 James Beard Best Chef Southwest", "#1 restaurant in Santa Fe on Tripadvisor", "Mon–Sat, last seating 8pm", "Business-casual dress code; no children under 10"],
-          "tags": ["james-beard-winner", "tasting-menu", "intimate"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        }
-      }
+      "time": "7:00 PM"
     },
     {
       "date": "2026-06-04",
       "label": "Thu Jun 4 — Canyon Road night",
       "theme": "Adobe and lamplight, oldest dining street in town.",
-      "time": "7:00 PM",
-      "defaultTier": "signature",
-      "options": {
-        "refined": {
-          "id": "la-boca-santa-fe",
-          "name": "La Boca",
-          "city": "Santa Fe",
-          "cuisine": "Spanish tapas",
-          "neighborhood": "Downtown",
-          "address": "72 W Marcy St, Santa Fe, NM 87501",
-          "phone": "+15059823433",
-          "website": "http://www.labocasantafe.com",
-          "priceBand": "$40–65 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/r/la-boca-santa-fe", "leadTime": "1 week" },
-          "notes": ["Chef James Campbell Caruso — 8× James Beard Best Chef SW nominee (2008–2014)", "Canyon Road's best Spanish offering now that El Farol is closed", "Sister bar Taberna next door for cocktails"],
-          "tags": ["tapas", "wine-program", "chef-driven"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "elevated": {
-          "id": "wolf-and-roadrunner",
-          "name": "Wolf and Roadrunner",
-          "city": "Santa Fe",
-          "cuisine": "Contemporary Southwest / wood-fire",
-          "neighborhood": "Plaza (Hotel St. Francis)",
-          "address": "210 Don Gaspar Ave, Santa Fe, NM 87501",
-          "phone": "+15059926342",
-          "website": "https://www.hotelstfrancis.com/eat-drink/wolf-and-roadrunner",
-          "priceBand": "$55–85 pp",
-          "booking": { "platform": "resy", "url": "https://resy.com/cities/santa-fe-nm/venues/wolf-and-roadrunner", "leadTime": "1–2 weeks", "note": "Rebranded from Tabla de los Santos. Thu–Sun only." },
-          "notes": ["Replaces Tabla de los Santos (rebrand, 2025)", "Wood-fire / seasonal concept", "Thu–Fri 3–8pm, Sat–Sun 1–8pm"],
-          "tags": ["new-concept", "hotel-restaurant", "limited-days"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "signature": {
-          "id": "the-compound-restaurant",
-          "name": "The Compound",
-          "city": "Santa Fe",
-          "cuisine": "Contemporary American",
-          "neighborhood": "Canyon Road",
-          "address": "653 Canyon Rd, Santa Fe, NM 87501",
-          "phone": "+15059824353",
-          "website": "https://compoundrestaurant.com",
-          "priceBand": "$150–250 pp",
-          "booking": { "platform": "resy", "url": "https://resy.com/cities/santa-fe-nm/venues/the-compound-restaurant", "leadTime": "3–4 weeks", "note": "Phone reservations preferred: (505) 982-4353. Not on OpenTable." },
-          "notes": ["**Blowout meal of the trip.** 2024 James Beard Outstanding Restaurant finalist — one of five in the country", "Chef-owner Mark Kiffin — 2005 JB Best Chef Southwest winner", "500+ wine selections", "Closed Sundays", "Historic adobe compound on Canyon Road"],
-          "tags": ["james-beard-finalist", "wine-program", "blowout", "canyon-road"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        }
-      }
+      "time": "7:00 PM"
     },
     {
       "date": "2026-06-05",
       "label": "Fri Jun 5 — Railyard night",
       "theme": "Downtown's modern side, gallery openings, contemporary cooking.",
-      "time": "7:30 PM",
-      "defaultTier": "elevated",
-      "options": {
-        "refined": {
-          "id": "zacatlan-santa-fe",
-          "name": "Zacatlán",
-          "city": "Santa Fe",
-          "cuisine": "Contemporary Mexican",
-          "neighborhood": "Railyard",
-          "address": "317 Aztec St, Santa Fe, NM 87501",
-          "phone": "+15057805174",
-          "website": "https://www.zacatlanrestaurant.com",
-          "priceBand": "$45–75 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/r/zacatlan-santa-fe", "leadTime": "1 week" },
-          "notes": ["Chef Eduardo Rodriguez (former Coyote Cafe exec sous) — 2024 James Beard Best Chef SW nominee", "Mole-driven, whole red snapper, Cochinita Pibil", "Distinct from Sazón — Railyard setting, à la carte focus"],
-          "tags": ["james-beard-nominee", "railyard", "contemporary-mexican"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "elevated": {
-          "id": "josephs-culinary-pub",
-          "name": "Joseph's Culinary Pub",
-          "city": "Santa Fe",
-          "cuisine": "Eclectic American",
-          "neighborhood": "Guadalupe / Railyard",
-          "address": "428 Agua Fria St, Santa Fe, NM 87501",
-          "phone": "+15059821272",
-          "website": "https://www.josephsculinarypub.com",
-          "priceBand": "$55–85 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/r/josephs-culinary-pub-santa-fe", "leadTime": "1–2 weeks" },
-          "notes": ["Chef Joseph Wrede — Food & Wine Best New Chef 2000, multi-year JB semifinalist (2008, 2010, 2025)", "Duck confit pad thai is the signature", "Wed–Sun 5–9pm"],
-          "tags": ["james-beard-semifinalist", "iconic-chef", "eclectic"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "signature": {
-          "id": "geronimo-canyon",
-          "name": "Geronimo",
-          "city": "Santa Fe",
-          "cuisine": "Global / contemporary",
-          "neighborhood": "Canyon Road",
-          "address": "724 Canyon Rd, Santa Fe, NM 87501",
-          "phone": "+15059821500",
-          "website": "https://www.geronimorestaurant.com",
-          "priceBand": "$110–175 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/geronimo-santa-fe", "leadTime": "3–4 weeks", "note": "No children under 10" },
-          "notes": ["1756 adobe — irreplaceable setting", "Elk tenderloin, Maine lobster tails", "Entrees $44–$64", "25+ years of consistent fine dining"],
-          "tags": ["canyon-road", "historic", "fine-dining"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        }
-      }
+      "time": "7:30 PM"
     },
     {
       "date": "2026-06-06",
       "label": "Sat Jun 6 — Spa night",
       "theme": "Ten Thousand Waves: hot tubs at dusk, dinner at Izanami.",
-      "time": "7:30 PM",
-      "defaultTier": "elevated",
-      "options": {
-        "refined": {
-          "id": "cowgirl-bbq",
-          "name": "Cowgirl BBQ",
-          "city": "Santa Fe",
-          "cuisine": "BBQ / Southwest",
-          "neighborhood": "Guadalupe / Railyard",
-          "address": "319 S Guadalupe St, Santa Fe, NM 87501",
-          "phone": "+15059822565",
-          "website": "https://cowgirlsantafe.com",
-          "priceBand": "$25–45 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/r/cowgirl-santa-fe", "leadTime": "Same-day to 1 week", "note": "OpenTable for parties of 5+; smaller parties may walk in" },
-          "notes": ["Live music weekend patio", "Locally beloved low-key option", "Genuine Santa Fe contrast night"],
-          "tags": ["casual", "live-music", "patio"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "elevated": {
-          "id": "izanami-ten-thousand-waves",
-          "name": "Izanami",
-          "city": "Santa Fe",
-          "cuisine": "Japanese izakaya",
-          "neighborhood": "Ten Thousand Waves (north of Plaza)",
-          "address": "21 Ten Thousand Waves Way, Santa Fe, NM 87501",
-          "phone": "+15059826355",
-          "website": "https://tenthousandwaves.com/food",
-          "priceBand": "$55–95 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/izanami", "leadTime": "2 weeks", "note": "Pair with a Ten Thousand Waves spa visit." },
-          "notes": ["2014 James Beard Best New Restaurant semifinalist", "Mountain-spa setting unique to the Southwest", "About 4 miles north of Plaza — book a car"],
-          "tags": ["james-beard-semifinalist", "destination", "spa-pairing"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "signature": {
-          "id": "alkeme-santa-fe",
-          "name": "Alkemē at Open Kitchen",
-          "city": "Santa Fe",
-          "cuisine": "Vietnamese / Taiwanese / Korean tasting",
-          "neighborhood": "Plaza",
-          "address": "227 Don Gaspar Ave, Santa Fe, NM 87501",
-          "phone": "+15059829704",
-          "website": "https://alkeme-santafe.com",
-          "priceBand": "$120–175 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/restaurant/profile/1310200", "leadTime": "2–3 weeks" },
-          "notes": ["Chef-Owner Hue-Chan Karels — 2024 James Beard Best New Restaurant semifinalist", "Three rotating 5-course tasting menus, $75–$85 plus wine", "Santa Fe's only serious tasting-menu destination", "Tue–Sat, last seating 8:45pm"],
-          "tags": ["james-beard-semifinalist", "tasting-menu", "asian-heritage"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        }
-      }
+      "time": "7:30 PM"
     },
     {
       "date": "2026-06-07",
       "label": "Sun Jun 7 — Plaza wander",
       "theme": "Galleries open late, slow Sunday pace. Many top kitchens are closed today.",
-      "time": "7:00 PM",
-      "defaultTier": "refined",
-      "options": {
-        "refined": {
-          "id": "cafe-pasquals",
-          "name": "Cafe Pasqual's",
-          "city": "Santa Fe",
-          "cuisine": "New Mexican / global",
-          "neighborhood": "Plaza",
-          "address": "121 Don Gaspar Ave, Santa Fe, NM 87501",
-          "phone": "+15059839340",
-          "website": "https://pasquals.com",
-          "priceBand": "$45–65 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/r/cafe-pasquals-santa-fe", "leadTime": "1–2 weeks", "note": "Open Sundays — one of the few top spots that is" },
-          "notes": ["Katharine Kagel — 1999 James Beard Best Chef SW nominee", "Mural-covered, communal-table icon", "Reservations strongly recommended for dinner"],
-          "tags": ["iconic", "open-sunday", "communal"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "elevated": {
-          "id": "coyote-cafe-rooftop",
-          "name": "Coyote Cafe & Rooftop Cantina",
-          "city": "Santa Fe",
-          "cuisine": "Southwest",
-          "neighborhood": "Plaza",
-          "address": "132 W Water St, Santa Fe, NM 87501",
-          "phone": "+15059831615",
-          "website": "https://coyotecafe.com",
-          "priceBand": "$65–95 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/coyote-cafe", "leadTime": "1–2 weeks", "note": "Rooftop Cantina is seasonal walk-in only — main dining room books." },
-          "notes": ["Mark Miller's 1987 Southwest classic — coasting on 1990s reputation per recent local critics", "Open Sundays, useful when other top kitchens are dark", "Demoted from Signature after peer review"],
-          "tags": ["open-sunday", "historic", "rooftop"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "signature": {
-          "id": "geronimo-canyon-sun",
-          "name": "Geronimo",
-          "city": "Santa Fe",
-          "cuisine": "Global / contemporary",
-          "neighborhood": "Canyon Road",
-          "address": "724 Canyon Rd, Santa Fe, NM 87501",
-          "phone": "+15059821500",
-          "website": "https://www.geronimorestaurant.com",
-          "priceBand": "$110–175 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/geronimo-santa-fe", "leadTime": "3–4 weeks", "note": "Open Sundays — rare for Canyon Road" },
-          "notes": ["One of the few Canyon Road Signature rooms open Sundays", "1756 adobe; elk tenderloin"],
-          "tags": ["canyon-road", "open-sunday", "fine-dining"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        }
-      }
+      "time": "7:00 PM"
     },
     {
       "date": "2026-06-09",
       "label": "Tue Jun 9 — Farewell dinner",
       "theme": "Last night in Santa Fe — go out properly.",
-      "time": "7:30 PM",
-      "defaultTier": "signature",
-      "options": {
-        "refined": {
-          "id": "the-shed-farewell",
-          "name": "The Shed (farewell red chile)",
-          "city": "Santa Fe",
-          "cuisine": "New Mexican",
-          "neighborhood": "Plaza",
-          "address": "113½ E Palace Ave, Santa Fe, NM 87501",
-          "phone": "+15059829030",
-          "website": "https://sfshed.com",
-          "priceBand": "$25–40 pp",
-          "booking": { "platform": "phone", "note": "Phone reservations or walk-in; (505) 982-9030" },
-          "notes": ["End the trip on the food you came for: red chile enchiladas", "Tuesday is the calmest service night"],
-          "tags": ["iconic", "casual", "farewell"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "elevated": {
-          "id": "restaurant-martin-farewell-tasting",
-          "name": "Restaurant Martín (farewell tasting)",
-          "city": "Santa Fe",
-          "cuisine": "Progressive American",
-          "neighborhood": "Don Gaspar",
-          "address": "526 Galisteo St, Santa Fe, NM 87501",
-          "phone": "+15058200919",
-          "website": "https://www.restaurantmartin.com",
-          "priceBand": "$85–125 pp",
-          "booking": { "platform": "opentable", "url": "https://www.opentable.com/restaurant-martin", "leadTime": "2–3 weeks", "note": "Ask for the tasting menu when booking" },
-          "notes": ["Chef Martín Rios — multi-year James Beard Best Chef SW nominee (2015–2018, 2022)", "Tasting menu format is the way to go for a farewell", "Wed–Sun (Tue June 9 — confirm open)"],
-          "tags": ["james-beard-nominee", "tasting-menu", "farewell"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        },
-        "signature": {
-          "id": "the-compound-farewell",
-          "name": "The Compound (farewell)",
-          "city": "Santa Fe",
-          "cuisine": "Contemporary American",
-          "neighborhood": "Canyon Road",
-          "address": "653 Canyon Rd, Santa Fe, NM 87501",
-          "phone": "+15059824353",
-          "website": "https://compoundrestaurant.com",
-          "priceBand": "$150–250 pp",
-          "booking": { "platform": "resy", "url": "https://resy.com/cities/santa-fe-nm/venues/the-compound-restaurant", "leadTime": "3–4 weeks", "note": "Phone is preferred: (505) 982-4353" },
-          "notes": ["The peer review's confirmed best farewell meal", "2024 James Beard Outstanding Restaurant finalist", "If already used Thu Jun 4 — Sazón is the alternate farewell"],
-          "tags": ["james-beard-finalist", "blowout", "farewell"],
-          "verifiedAt": "2026-05-27",
-          "verificationStatus": "verified"
-        }
-      }
+      "time": "7:30 PM"
     }
   ],
   "supplementary": {
@@ -388,7 +714,10 @@
       {
         "name": "El Farol",
         "reason": "Permanently closed November 12, 2025. Building listed for sale at $2.5M.",
-        "sources": ["https://www.kob.com/news/top-news/report-iconic-el-farol-restaurant-closes-its-doors/", "https://newmexico.tablemagazine.com/blog/remembering-el-farol-a-historic-santa-fe-loss/"]
+        "sources": [
+          "https://www.kob.com/news/top-news/report-iconic-el-farol-restaurant-closes-its-doors/",
+          "https://newmexico.tablemagazine.com/blog/remembering-el-farol-a-historic-santa-fe-loss/"
+        ]
       },
       {
         "name": "La Choza",

@@ -65,7 +65,7 @@
 
   <p class="demo-eyebrow">@jhwiv/trip-restaurants · demo</p>
   <h1 class="demo-title">Santa Fe dinners</h1>
-  <p class="demo-sub">Tap a tier on any night — your choices save to this browser and the timeline below updates with you.</p>
+  <p class="demo-sub">Every night shows the full restaurant pool, grouped by price. Pick any restaurant for any night — nothing is pre-selected, and you can repeat the same restaurant across nights.</p>
 
   <section id="timeline-section">
     <h2 style="font-size:24px; margin: 0 0 14px;">Reservation timeline</h2>
@@ -91,37 +91,34 @@
   import { mountDiningTab, mountReservationTimeline } from '../src/restaurants.js';
 
   const dataset = await (await fetch('../templates/santa-fe.json')).json();
-  const STORAGE_KEY = 'trip-restaurants-demo-tiers';
+  const STORAGE_KEY = 'trip-restaurants-demo';
 
-  const diningState = mountDiningTab({
+  mountDiningTab({
     dataset,
     mount: document.querySelector('#dining'),
     storageKey: STORAGE_KEY,
   });
 
-  const timelineState = mountReservationTimeline({
-    dataset,
-    mount: document.querySelector('#timeline'),
-    storageKey: STORAGE_KEY,
-  });
-
-  // Cross-update: when the dining tab changes a tier, refresh the timeline.
-  // (Both views share the same storage key, but they hold separate in-memory
-  // state instances. A 'storage' event would only fire across tabs, so we
-  // hook a 'click' listener on the dining tab to refresh the timeline.)
+  // Timeline auto-refreshes on storage changes via the module's subscribe hook.
+  // We rebuild it manually on any click in the dining area so the same-tab
+  // experience stays live (the storage event only fires across tabs).
+  const rebuildTimeline = () => {
+    const root = document.querySelector('#timeline');
+    root.innerHTML = '';
+    mountReservationTimeline({ dataset, mount: root, storageKey: STORAGE_KEY });
+  };
+  rebuildTimeline();
   document.querySelector('#dining').addEventListener('click', e => {
-    if (e.target.closest('.tr-tier-btn')) {
-      // Re-read from localStorage and rebuild the timeline.
-      const fresh = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      Object.assign(timelineState.choices, fresh);
-      const root = document.querySelector('#timeline');
-      root.innerHTML = '';
-      mountReservationTimeline({ dataset, mount: root, storageKey: STORAGE_KEY });
+    if (e.target.closest('button, .tr-pool-pick-btn, .tr-btn-mark, .tr-booked-clear, .tr-btn-change')) {
+      // Defer one tick so the click handler can finish updating state first.
+      setTimeout(rebuildTimeline, 0);
     }
   });
 
   document.querySelector('#reset').addEventListener('click', () => {
-    localStorage.removeItem(STORAGE_KEY);
+    ['picks','bookings','notes','party'].forEach(suffix => {
+      localStorage.removeItem(`${STORAGE_KEY}-${suffix}`);
+    });
     location.reload();
   });
 </script>

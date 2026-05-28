@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jhwiv/trip-restaurants/schema.json",
   "title": "Trip Restaurants Dataset",
-  "description": "A trip's restaurant data: a set of dining-night slots, each filled with one or more restaurant options across three price tiers (Refined / Elevated / Signature).",
+  "description": "A trip's restaurant data: a pool of restaurants tagged by price tier ($$ Refined / $$$ Elevated / $$$$ Signature), plus a list of dining nights. The user freely picks any pool restaurant for any night — nothing is pre-assigned.",
   "type": "object",
-  "required": ["trip", "tiers", "nights"],
+  "required": ["trip", "tiers", "restaurants", "nights"],
   "properties": {
     "trip": {
       "type": "object",
@@ -13,7 +13,17 @@
         "city": { "type": "string" },
         "startDate": { "type": "string", "format": "date" },
         "endDate": { "type": "string", "format": "date" },
-        "currency": { "type": "string", "default": "USD" }
+        "currency": { "type": "string", "default": "USD" },
+        "notes": { "type": "string" },
+        "party": {
+          "type": "object",
+          "description": "Default party config used when deep-linking to OpenTable/Resy.",
+          "properties": {
+            "size": { "type": "integer", "minimum": 1, "default": 2 },
+            "defaultTime": { "type": "string", "description": "Default dinner time, e.g. '19:00' or '7:00 PM'." },
+            "dietary": { "type": "array", "items": { "type": "string" }, "description": "Free-text dietary notes the traveler may want to reference when calling." }
+          }
+        }
       }
     },
     "tiers": {
@@ -26,10 +36,21 @@
       },
       "additionalProperties": { "$ref": "#/$defs/tier" }
     },
+    "restaurants": {
+      "type": "array",
+      "description": "Deduped pool of every restaurant in the lineup. Each entry has a tier ('refined'|'elevated'|'signature') and can be picked for any number of nights.",
+      "items": { "$ref": "#/$defs/restaurant" },
+      "minItems": 1
+    },
     "nights": {
       "type": "array",
-      "description": "One entry per dining night in the trip, in chronological order.",
+      "description": "One entry per dining night in the trip, in chronological order. Nights expose the full restaurant pool; user picks per night.",
       "items": { "$ref": "#/$defs/night" }
+    },
+    "supplementary": {
+      "type": "object",
+      "description": "Pre-dinner drinks, removed/considered restaurants, and other non-pickable context.",
+      "additionalProperties": true
     }
   },
 
@@ -47,36 +68,21 @@
 
     "night": {
       "type": "object",
-      "required": ["date", "label", "options"],
+      "required": ["date", "label"],
       "properties": {
         "date": { "type": "string", "format": "date" },
         "label": { "type": "string", "description": "Human-readable night label (e.g. 'Fri Jun 5 — Canyon Road night')." },
-        "theme": { "type": "string", "description": "Optional themes line (e.g. 'arrival', 'Canyon Road night', 'farewell')." },
-        "time": { "type": "string", "description": "Default dinner time (e.g. '7:00 PM')." },
-        "defaultTier": {
-          "type": "string",
-          "description": "Tier preselected for this night when the user has no saved choice.",
-          "enum": ["refined", "elevated", "signature"]
-        },
-        "options": {
-          "type": "object",
-          "description": "Restaurant pick at each tier. At least one tier must be filled; missing tiers fall back to the closest filled tier with a visible note.",
-          "properties": {
-            "refined":   { "$ref": "#/$defs/restaurant" },
-            "elevated":  { "$ref": "#/$defs/restaurant" },
-            "signature": { "$ref": "#/$defs/restaurant" }
-          },
-          "additionalProperties": { "$ref": "#/$defs/restaurant" },
-          "minProperties": 1
-        }
+        "theme": { "type": "string", "description": "Optional theme line (e.g. 'arrival', 'Canyon Road night', 'farewell')." },
+        "time": { "type": "string", "description": "Default dinner time for this night (e.g. '7:00 PM'). Overrides trip.party.defaultTime when present." }
       }
     },
 
     "restaurant": {
       "type": "object",
-      "required": ["id", "name", "city", "address", "phone", "website", "booking", "verifiedAt"],
+      "required": ["id", "name", "city", "address", "phone", "website", "booking", "verifiedAt", "tier"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "tier": { "type": "string", "enum": ["refined", "elevated", "signature"], "description": "Which price band this restaurant belongs to." },
         "name": { "type": "string" },
         "city": { "type": "string" },
         "cuisine": { "type": "string" },
@@ -89,10 +95,16 @@
         "hours": {
           "type": "object",
           "properties": {
-            "dinner": { "type": "string" },
+            "dinner": { "type": "string", "description": "Human-readable dinner hours line, e.g. 'Mon–Sat 5–9pm'." },
+            "openDays": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["mon","tue","wed","thu","fri","sat","sun"] },
+              "description": "Days the restaurant serves dinner. The verifier and UI use this to flag any night whose weekday isn't in this list."
+            },
             "closedDays": {
               "type": "array",
-              "items": { "type": "string", "enum": ["mon","tue","wed","thu","fri","sat","sun"] }
+              "items": { "type": "string", "enum": ["mon","tue","wed","thu","fri","sat","sun"] },
+              "description": "Legacy / alternate to openDays. If both are set, openDays wins."
             }
           }
         },

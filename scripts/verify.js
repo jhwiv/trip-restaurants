@@ -182,10 +182,19 @@ const dataset = JSON.parse(raw);
 
 const rows = [];
 const restaurants = [];
-for (const night of dataset.nights || []) {
-  for (const [tier, r] of Object.entries(night.options || {})) {
+// New pool-based schema: top-level dataset.restaurants[]. Fall back to the
+// legacy per-night structure for older datasets.
+if (Array.isArray(dataset.restaurants) && dataset.restaurants.length) {
+  for (const r of dataset.restaurants) {
     if (!r || !r.id) continue;
-    restaurants.push({ night: night.date + ' / ' + (night.label || ''), tier, r });
+    restaurants.push({ night: 'pool', tier: r.tier || '', r });
+  }
+} else {
+  for (const night of dataset.nights || []) {
+    for (const [tier, r] of Object.entries(night.options || {})) {
+      if (!r || !r.id) continue;
+      restaurants.push({ night: night.date + ' / ' + (night.label || ''), tier, r });
+    }
   }
 }
 

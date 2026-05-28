@@ -1,6 +1,6 @@
-/* Trip-restaurants render module styles. Variables are inherited from the
-   host site when defined; sensible fallbacks otherwise. Override anything by
-   targeting .tr-* selectors in the host site's CSS. */
+/* Trip-restaurants render module styles — pool-based picker.
+   Variables are inherited from the host site when defined; sensible fallbacks otherwise.
+   Override anything by targeting .tr-* selectors in the host site's CSS. */
 
 .tr-dining {
   --tr-ink: var(--ink, #1c1815);
@@ -10,11 +10,13 @@
   --tr-muted: var(--muted, #8a7f6c);
   --tr-gold: var(--gold, #b8862c);
   --tr-rust: var(--rust, #a44d2b);
+  --tr-green: var(--green, #4a7a5c);
 
   font-family: var(--serif, "Cormorant Garamond", Georgia, serif);
   color: var(--tr-ink);
 }
 
+/* ---------- Header ---------- */
 .tr-header h2 {
   font-size: clamp(28px, 4vw, 40px);
   margin: 0 0 8px;
@@ -46,6 +48,7 @@
 .tr-legend-band  { color: var(--tr-gold); font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
 .tr-legend-blurb { color: var(--tr-muted); font-style: italic; }
 
+/* ---------- Night card ---------- */
 .tr-nights { display: grid; gap: 22px; }
 .tr-night {
   border: 1px solid var(--tr-rule);
@@ -60,95 +63,168 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--tr-muted);
-  margin: 0;
+  margin: 0 0 4px;
 }
-.tr-night-theme {
-  font-style: italic;
-  color: var(--tr-muted);
-  margin: 4px 0 0;
+.tr-night-sub {
+  margin: 0;
   font-size: 14px;
+  color: var(--tr-muted);
+  font-style: italic;
+}
+.tr-night-party { font-style: normal; }
+
+/* ---------- Picked block ---------- */
+.tr-picked-block { margin-bottom: 18px; }
+.tr-picked-empty {
+  color: var(--tr-muted);
+  font-style: italic;
+  margin: 0 0 12px;
+  padding: 14px;
+  background: rgba(184, 134, 44, 0.06);
+  border: 1px dashed var(--tr-rule);
+  border-radius: 6px;
+}
+.tr-picked-label {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tr-gold);
+  margin: 0 0 8px;
+}
+.tr-restaurant-picked {
+  background: #fff;
+  border: 1px solid var(--tr-rule);
+  border-left: 4px solid var(--tr-gold);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+.tr-restaurant-picked.is-booked {
+  border-left-color: var(--tr-green);
 }
 
-.tr-tier-picker {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin: 0 0 18px;
-}
-.tr-tier-btn {
-  appearance: none;
-  background: transparent;
-  border: 1px solid var(--tr-rule);
-  border-radius: 6px;
-  padding: 10px 8px;
+.tr-restaurant-head { margin-bottom: 6px; }
+.tr-restaurant-top {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  cursor: pointer;
-  transition: border-color .15s, background .15s, color .15s;
-  color: var(--tr-ink);
-  font-family: inherit;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.tr-tier-btn .tr-tier-band {
+.tr-name {
+  font-size: clamp(20px, 3vw, 26px);
+  margin: 0;
+  letter-spacing: -0.005em;
+}
+.tr-tier-chip {
   font-family: var(--mono, ui-monospace, monospace);
   font-size: 11px;
   letter-spacing: 0.12em;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: rgba(184, 134, 44, 0.12);
   color: var(--tr-gold);
-}
-.tr-tier-btn .tr-tier-label {
-  font-size: 13px;
-  letter-spacing: 0.02em;
-}
-.tr-tier-btn:hover { border-color: var(--tr-gold); }
-.tr-tier-btn.is-active {
-  border-color: var(--tr-gold);
-  background: var(--tr-gold);
-  color: #fff;
-}
-.tr-tier-btn.is-active .tr-tier-band { color: rgba(255,255,255,0.85); }
-.tr-tier-btn.is-empty {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.tr-active-pick { margin-top: 6px; }
-.tr-fallback-note {
-  color: var(--tr-rust);
-  font-size: 13px;
-  margin: 0 0 10px;
-}
-.tr-missing {
-  color: var(--tr-muted);
-  font-style: italic;
-}
-
-.tr-restaurant { display: block; }
-.tr-name {
-  font-size: clamp(22px, 3vw, 28px);
-  margin: 0 0 4px;
-  letter-spacing: -0.005em;
 }
 .tr-meta {
   color: var(--tr-muted);
   font-size: 14px;
-  margin: 0 0 12px;
+  margin: 4px 0 12px;
 }
 .tr-meta-price { color: var(--tr-gold); }
 
 .tr-notes {
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   padding-left: 18px;
-  font-size: 14.5px;
+  font-size: 14px;
   line-height: 1.5;
 }
 .tr-notes li { margin: 2px 0; }
 
+/* ---------- Booked banner ---------- */
+.tr-booked-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(74, 122, 92, 0.1);
+  color: var(--tr-green);
+  border: 1px solid rgba(74, 122, 92, 0.3);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+.tr-booked-check { font-weight: 700; }
+.tr-booked-clear {
+  margin-left: auto;
+  color: var(--tr-green);
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---------- Mark-as-booked controls ---------- */
+.tr-mark-booked {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.tr-confirmation-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 1px solid var(--tr-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--tr-ink);
+}
+.tr-confirmation-input:focus { outline: 2px solid var(--tr-gold); outline-offset: -1px; }
+.tr-btn-mark {
+  background: transparent;
+  border: 1px solid var(--tr-green);
+  color: var(--tr-green);
+  padding: 8px 14px;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.tr-btn-mark:hover { background: var(--tr-green); color: #fff; }
+.tr-btn-change {
+  margin-top: 10px;
+  background: transparent;
+  border: none;
+  color: var(--tr-muted);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+.tr-btn-change:hover { color: var(--tr-ink); }
+.tr-closed-warning {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  background: rgba(164, 77, 43, 0.08);
+  border-left: 3px solid var(--tr-rust);
+  color: var(--tr-rust);
+  font-size: 13px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ---------- Actions row ---------- */
 .tr-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+  margin-top: 4px;
 }
 .tr-btn-primary, .tr-btn-secondary {
   display: inline-flex;
@@ -163,10 +239,7 @@
   border: 1px solid transparent;
   cursor: pointer;
 }
-.tr-btn-primary {
-  background: var(--tr-gold);
-  color: #fff;
-}
+.tr-btn-primary { background: var(--tr-gold); color: #fff; }
 .tr-btn-primary:hover { filter: brightness(0.95); }
 .tr-btn-secondary {
   background: transparent;
@@ -184,21 +257,200 @@
   font-size: 13px;
   text-decoration: underline;
   text-underline-offset: 3px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .tr-booking-note {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   font-size: 13px;
   font-style: italic;
   color: var(--tr-muted);
   line-height: 1.5;
 }
 
-/* Reservation timeline */
+/* ---------- Pool (browse all) ---------- */
+.tr-pool {
+  margin: 0 0 14px;
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.4);
+  padding: 0;
+}
+.tr-pool[open] { background: #fff; }
+.tr-pool-summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-ink);
+  list-style: none;
+}
+.tr-pool-summary::-webkit-details-marker { display: none; }
+.tr-pool-summary::before {
+  content: '▸ ';
+  display: inline-block;
+  transition: transform .15s;
+  color: var(--tr-gold);
+  margin-right: 4px;
+}
+.tr-pool[open] .tr-pool-summary::before { transform: rotate(90deg); }
+
+.tr-pool-section { padding: 12px 16px 16px; border-top: 1px solid var(--tr-rule); }
+.tr-pool-section:first-of-type { border-top: 1px solid var(--tr-rule); }
+.tr-pool-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.tr-pool-band {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--tr-gold);
+}
+.tr-pool-label { color: var(--tr-ink); }
+.tr-pool-blurb { color: var(--tr-muted); font-style: italic; font-weight: 400; font-size: 13px; }
+
+.tr-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.tr-pool-card {
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .15s, transform .1s;
+}
+.tr-pool-card:hover { border-color: var(--tr-gold); }
+.tr-pool-card.is-picked { border-color: var(--tr-gold); background: rgba(184, 134, 44, 0.05); }
+.tr-pool-card.is-closed {
+  opacity: 0.55;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(0,0,0,0.015),
+    rgba(0,0,0,0.015) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+.tr-pool-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tr-pool-card-name {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.tr-closed-chip {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: var(--tr-rust);
+  color: #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tr-pool-card-meta {
+  font-size: 12.5px;
+  color: var(--tr-muted);
+  margin: 0 0 6px;
+}
+.tr-pool-card-note {
+  font-size: 12.5px;
+  color: var(--tr-ink);
+  margin: 0 0 10px;
+  line-height: 1.4;
+  font-style: italic;
+}
+.tr-pool-pick-btn {
+  margin-top: auto;
+  padding: 7px 10px;
+  background: transparent;
+  border: 1px solid var(--tr-gold);
+  color: var(--tr-gold);
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.tr-pool-pick-btn:hover { background: var(--tr-gold); color: #fff; }
+.tr-pool-pick-btn.is-picked { background: var(--tr-gold); color: #fff; }
+.tr-pool-card.is-closed .tr-pool-pick-btn { border-color: var(--tr-rust); color: var(--tr-rust); }
+
+/* ---------- Per-night notes ---------- */
+.tr-night-note { margin-top: 14px; }
+.tr-night-note-label {
+  display: block;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  margin-bottom: 6px;
+}
+.tr-night-note-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 1px solid var(--tr-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--tr-ink);
+  resize: vertical;
+  min-height: 50px;
+  box-sizing: border-box;
+}
+.tr-night-note-input:focus { outline: 2px solid var(--tr-gold); outline-offset: -1px; }
+
+/* ---------- Reservation timeline ---------- */
+.tr-timeline-empty {
+  color: var(--tr-muted);
+  font-style: italic;
+  padding: 18px;
+  text-align: center;
+  background: var(--tr-card);
+  border: 1px dashed var(--tr-rule);
+  border-radius: 6px;
+}
+.tr-urgency-banner {
+  background: var(--tr-rust);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 0 0 14px;
+  font-size: 15px;
+}
+.tr-urgency-sub { opacity: 0.85; }
+
 .tr-timeline-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
 .tr-timeline-row {
   display: grid;
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: 130px 1fr;
   gap: 14px;
   align-items: start;
   background: var(--tr-card);
@@ -206,6 +458,7 @@
   border-radius: 6px;
   padding: 12px 14px;
 }
+.tr-timeline-row.is-booked { opacity: 0.7; }
 .tr-timeline-badge {
   font-family: var(--mono, ui-monospace, monospace);
   font-size: 11px;
@@ -220,13 +473,15 @@
 .tr-urgency-high { background: var(--tr-rust); color: #fff; }
 .tr-urgency-med  { background: var(--tr-gold); color: #fff; }
 .tr-urgency-low  { background: transparent; border: 1px solid var(--tr-rule); }
+.tr-urgency-done { background: var(--tr-green); color: #fff; }
 
 .tr-timeline-name { margin: 0 0 4px; font-weight: 600; }
-.tr-timeline-tier-tag { color: var(--tr-muted); font-weight: 400; font-style: italic; }
 .tr-timeline-note { margin: 0; color: var(--tr-muted); font-size: 14px; line-height: 1.5; }
 .tr-timeline-note a { color: var(--tr-gold); }
 
+/* ---------- Mobile ---------- */
 @media (max-width: 640px) {
-  .tr-tier-picker { grid-template-columns: 1fr; }
+  .tr-pool-grid { grid-template-columns: 1fr; }
   .tr-timeline-row { grid-template-columns: 1fr; }
+  .tr-restaurant-top { flex-direction: column; align-items: flex-start; }
 }
