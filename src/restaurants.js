@@ -657,18 +657,20 @@ function renderBackupBlock(dataset, night, state, rerender) {
   if (!r) return el('div', { class: 'tr-backup-empty' });
   const sameTier = r.tier === pickedR.tier;
   const note = sameTier
-    ? ' · If your first choice falls through'
-    : ' · Easier-to-book alternative at the same or lower price';
+    ? ` · In case ${pickedR.name} is fully booked`
+    : ` · Easier-to-book option at the same or lower price`;
   const block = el('div', { class: 'tr-backup-block' });
   block.append(el('p', { class: 'tr-backup-label' },
-    el('span', { class: 'tr-backup-chip' }, 'Backup'),
+    el('span', { class: 'tr-backup-chip' }, 'Backup pick'),
     el('span', { class: 'tr-backup-label-text' }, note),
   ));
-  block.append(renderBackupCard(dataset, r, night, state, rerender));
+  block.append(el('p', { class: 'tr-backup-hint' },
+    `Book ${pickedR.name} first. If they can't seat you, the card below is our recommended fallback — same neighborhood, similar style.`));
+  block.append(renderBackupCard(dataset, r, night, state, rerender, pickedR));
   return block;
 }
 
-function renderBackupCard(dataset, r, night, state, rerender) {
+function renderBackupCard(dataset, r, night, state, rerender, pickedR) {
   const card = el('div', { class: `tr-restaurant tr-restaurant-backup tier-${r.tier}`, 'data-id': r.id });
   card.append(renderRestaurantHead(dataset, r));
   if (r.notes?.length) {
@@ -681,14 +683,29 @@ function renderBackupCard(dataset, r, night, state, rerender) {
   if (r.phone) actions.append(el('a', { class: 'tr-btn-secondary', href: 'tel:' + r.phone }, formatPhone(r.phone)));
   if (r.website) actions.append(el('a', { class: 'tr-btn-link', href: r.website, target: '_blank', rel: 'noopener' }, 'Website ↗'));
   card.append(actions);
-  // Promote backup to be the primary pick
-  const promote = el('button', { type: 'button', class: 'tr-btn-promote' }, 'Use this instead');
+  // Promote backup to be the primary pick. The label spells out the consequence
+  // so users understand they are SWAPPING their main pick, not adding a second one.
+  const promoteRow = el('div', { class: 'tr-promote-row' });
+  const promote = el('button', { type: 'button', class: 'tr-btn-promote' },
+    el('span', { class: 'tr-btn-promote-icon', 'aria-hidden': 'true' }, '⇄'),
+    el('span', {}, `Swap — make ${r.name} my pick instead`),
+  );
+  promote.setAttribute('aria-label', `Swap your pick: replace ${pickedR ? pickedR.name : 'your current pick'} with ${r.name}`);
   promote.addEventListener('click', () => {
+    const prompt = pickedR
+      ? `Replace ${pickedR.name} with ${r.name} for this night?`
+      : `Make ${r.name} your pick for this night?`;
+    if (typeof confirm === 'function' && !confirm(prompt)) return;
     state.setPick(night, r.id);
     state.setBooked(night, null);
     rerender();
   });
-  card.append(promote);
+  promoteRow.append(promote);
+  if (pickedR) {
+    promoteRow.append(el('p', { class: 'tr-promote-hint' },
+      `This replaces ${pickedR.name} as your main pick for this night.`));
+  }
+  card.append(promoteRow);
   // Closed-day warning (defensive)
   const wd = weekdayOf(night.date);
   if (!isOpenOn(r, wd)) {

@@ -371,19 +371,51 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
 }
 .tr-restaurant-backup .tr-name { font-size: 1rem; }
 .tr-restaurant-backup .tr-notes { font-size: 0.85rem; }
-.tr-btn-promote {
-  background: none;
-  border: 1px solid var(--tr-rule);
-  color: var(--tr-ink);
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.82rem;
-  cursor: pointer;
-  margin-top: 8px;
+.tr-backup-hint {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--tr-muted);
+  font-style: italic;
 }
-.tr-btn-promote:hover {
+.tr-promote-row {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--tr-rule);
+}
+.tr-btn-promote {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--tr-gold);
+  color: var(--tr-ink);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.tr-btn-promote:hover,
+.tr-btn-promote:focus-visible {
+  background: var(--tr-gold);
   border-color: var(--tr-gold);
-  color: var(--tr-gold);
+  color: #fff;
+  outline: none;
+}
+.tr-btn-promote-icon {
+  font-size: 1.05em;
+  line-height: 1;
+  font-weight: 600;
+}
+.tr-promote-hint {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: var(--tr-muted);
+  line-height: 1.45;
 }
 
 .tr-restaurant-head { margin-bottom: 6px; }
