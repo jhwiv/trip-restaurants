@@ -39,6 +39,11 @@ const globalFilterState = {
   tiers: new Set(),
 };
 
+// Per-night tier selection (keyed by night.date). When set, the night shows
+// a list of restaurants in that tier. When null, the night shows the
+// three-tier picker.
+const nightTierSelection = new Map();
+
 function renderGlobalFilters(dataset, state, rerenderAll) {
   const bar = el('div', { class: 'tr-global-filters' });
   bar.append(el('p', { class: 'tr-global-filters-label' }, 'Filter all nights:'));
@@ -359,13 +364,138 @@ function renderNightCard(dataset, night, state) {
 
   card.append(renderNightSummary(dataset, night, state));
   const body = el('div', { class: 'tr-night-body' });
-  body.append(renderPickedBlock(dataset, night, state, rerender));
-  if (!pickId) body.append(renderSuggestionsBlock(dataset, night, state, rerender));
-  else body.append(renderBackupBlock(dataset, night, state, rerender));
-  body.append(renderPoolBlock(dataset, night, state, rerender));
+  if (pickId) {
+    // User has chosen — show picked card + backup suggestion + note
+    body.append(renderPickedBlock(dataset, night, state, rerender));
+    body.append(renderBackupBlock(dataset, night, state, rerender));
+  } else {
+    // No pick yet. Two sub-states:
+    //   1. No tier chosen → show 3-tier picker ($$ / $$$ / $$$$)
+    //   2. Tier chosen   → show compact list of restaurants in that tier
+    const tier = nightTierSelection.get(night.date);
+    if (!tier) {
+      body.append(renderTierPicker(dataset, night, state, rerender));
+    } else {
+      body.append(renderTierList(dataset, night, state, tier, rerender));
+    }
+  }
   body.append(renderNoteBlock(night, state));
   card.append(body);
   return card;
+}
+
+// ---------- Tier picker (shown when no pick + no tier selected) ----------
+function renderTierPicker(dataset, night, state, rerender) {
+  const block = el('div', { class: 'tr-tier-picker' });
+  block.append(el('p', { class: 'tr-tier-picker-label' }, 'Start by choosing a price tier:'));
+  const grid = el('div', { class: 'tr-tier-grid' });
+  const tierOrder = ['refined', 'elevated', 'signature'];
+  for (const tid of tierOrder) {
+    const def = dataset.tiers?.[tid]; if (!def) continue;
+    // Count restaurants available for this night in that tier
+    const count = restaurantsFor(dataset, night, tid).length;
+    const card = el('button', { type: 'button', class: `tr-tier-card tier-${tid}` });
+    card.append(el('span', { class: 'tr-tier-band' }, def.priceBand || ''));
+    card.append(el('span', { class: 'tr-tier-name' }, def.label || tid));
+    if (def.blurb)    card.append(el('span', { class: 'tr-tier-blurb' }, def.blurb));
+    if (def.leadTime) card.append(el('span', { class: 'tr-tier-lead' }, 'Book ' + def.leadTime));
+    card.append(el('span', { class: 'tr-tier-count' }, count + ' option' + (count === 1 ? '' : 's')));
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      nightTierSelection.set(night.date, tid);
+      rerender();
+    });
+    grid.append(card);
+  }
+  block.append(grid);
+  return block;
+}
+
+// ---------- Tier list (after a tier is selected) ----------
+function restaurantsFor(dataset, night, tier) {
+  const weekday = weekdayOf(night.date);
+  return (dataset.restaurants || []).filter(r => {
+    if (r.tier !== tier) return false;
+    if (!isOpenOn(r, weekday)) return false;
+    return true;
+  });
+}
+
+function renderTierList(dataset, night, state, tier, rerender) {
+  const block = el('div', { class: 'tr-tier-list-block' });
+  const def = dataset.tiers?.[tier] || {};
+  const head = el('div', { class: 'tr-tier-list-head' });
+  const back = el('button', { type: 'button', class: 'tr-tier-list-back' }, '← Tiers');
+  back.addEventListener('click', (e) => {
+    e.preventDefault();
+    nightTierSelection.delete(night.date);
+    rerender();
+  });
+  head.append(back);
+  head.append(el('span', { class: 'tr-tier-list-title' },
+    (def.label || tier) + ' · ' + (def.priceBand || '')));
+  block.append(head);
+
+  const items = restaurantsFor(dataset, night, tier);
+  if (!items.length) {
+    block.append(el('p', { class: 'tr-tier-list-empty' },
+      'No ' + (def.label || tier).toLowerCase() + ' spots are open that night. Try another tier.'));
+    return block;
+  }
+  // Sort: walkable first (by walk minutes), then by name
+  items.sort((a, b) => {
+    const ta = a.travelFromHotel, tb = b.travelFromHotel;
+    const aw = ta?.mode === 'walk' ? 0 : 1;
+    const bw = tb?.mode === 'walk' ? 0 : 1;
+    if (aw !== bw) return aw - bw;
+    const am = ta?.walkMinutes ?? ta?.driveMinutes ?? 999;
+    const bm = tb?.walkMinutes ?? tb?.driveMinutes ?? 999;
+    if (am !== bm) return am - bm;
+    return a.name.localeCompare(b.name);
+  });
+  const list = el('ul', { class: 'tr-tier-list' });
+  for (const r of items) list.append(renderTierListRow(dataset, r, night, state, rerender));
+  block.append(list);
+  return block;
+}
+
+function renderTierListRow(dataset, r, night, state, rerender) {
+  const li = el('li', { class: 'tr-tier-row', tabindex: '0', role: 'button',
+    'aria-label': 'Choose ' + r.name + ' for this night' });
+  const main = el('div', { class: 'tr-tier-row-main' });
+  main.append(el('p', { class: 'tr-tier-row-name' }, r.name));
+  const meta = el('p', { class: 'tr-tier-row-meta' });
+  const t = r.travelFromHotel;
+  if (t?.label) {
+    const span = el('span', { class: 'tr-tier-row-distance tr-mode-' + (t.mode || 'unknown') }, t.label);
+    meta.append(span);
+  }
+  // Reservation method
+  const platform = (r.booking?.platform || '').toLowerCase();
+  const platformLabel = ({
+    opentable: 'OpenTable',
+    resy: 'Resy',
+    phone: 'Phone',
+    yelp: 'Yelp',
+    sevenrooms: 'SevenRooms',
+    walkin: 'Walk-in',
+  })[platform] || (platform ? platform[0].toUpperCase() + platform.slice(1) : 'Reservation');
+  meta.append(el('span', { class: 'tr-tier-row-book' }, ' · ' + platformLabel));
+  if (r.cuisine) meta.append(el('span', { class: 'tr-tier-row-cuisine' }, ' · ' + r.cuisine));
+  main.append(meta);
+  li.append(main);
+  li.append(el('span', { class: 'tr-tier-row-chevron' }, '›'));
+  const pick = (e) => {
+    e.preventDefault();
+    state.setPick(night, r.id);
+    nightTierSelection.delete(night.date);
+    rerender();
+  };
+  li.addEventListener('click', pick);
+  li.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') pick(e);
+  });
+  return li;
 }
 
 function renderNightSummary(dataset, night, state) {
