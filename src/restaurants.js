@@ -525,6 +525,16 @@ function renderPickedCard(dataset, r, night, state, rerender) {
     card.append(ul);
   }
 
+  // Deadline chip (only when not yet booked) — the only place "Book by X" lives
+  if (!isBooked) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const deadline = bookDeadlineFor(r, night);
+    const daysToBook = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+    const tier = daysToBook <= 7 ? 'high' : daysToBook <= 21 ? 'med' : 'low';
+    const text = daysToBook <= 0 ? 'Book today' : `Book by ${formatShortDate(deadline)}`;
+    card.append(el('p', { class: `tr-picked-deadline tr-urgency-${tier}` }, text));
+  }
+
   // Booked state
   if (isBooked) {
     const booked = el('div', { class: 'tr-booked-banner' });
@@ -745,59 +755,72 @@ function renderBookingButton(r, night, state) {
 // ---------- render: reservation timeline ----------
 
 function renderTimeline(dataset, state) {
+  // Tight status summary — NOT a duplicate of the per-night list.
+  // States: (a) no picks, (b) some picks, (c) all picked + some booked, (d) all booked.
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const rows = [];
+  const totalNights = dataset.nights.length;
+  let picked = 0, booked = 0, urgentUnbooked = 0;
+  let firstUnbookedNight = null;
   for (const night of dataset.nights) {
     const pickId = state.pickFor(night);
     if (!pickId) continue;
+    picked += 1;
     const r = dataset.restaurants.find(x => x.id === pickId);
     if (!r) continue;
-    const booked = state.bookingFor(night);
+    const bk = state.bookingFor(night);
+    if (bk) { booked += 1; continue; }
+    if (!firstUnbookedNight) firstUnbookedNight = night;
     const deadline = bookDeadlineFor(r, night);
     const daysToBook = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-    rows.push({ night, r, booked, deadline, daysToBook });
+    if (daysToBook <= 7) urgentUnbooked += 1;
   }
-  // Sort: unbooked-urgent first, then booked
-  rows.sort((a, b) => {
-    if (!!a.booked !== !!b.booked) return a.booked ? 1 : -1;
-    return a.daysToBook - b.daysToBook;
-  });
 
   const wrap = el('div', { class: 'tr-timeline-wrap' });
-  if (!rows.length) {
-    wrap.append(el('p', { class: 'tr-timeline-empty' }, 'No restaurants picked yet. Choose from each night to build your reservation queue.'));
+
+  // (a) Nothing picked yet — short empty state, no scary banner
+  if (picked === 0) {
+    wrap.append(el('p', { class: 'tr-timeline-empty' },
+      `Pick a restaurant for each of your ${totalNights} nights below. Top Santa Fe tables — especially on Canyon Road — book 4–6 weeks ahead in June.`,
+    ));
     return wrap;
   }
-  // Urgency banner
-  const urgent = rows.filter(r => !r.booked && r.daysToBook <= 7);
-  if (urgent.length) {
-    wrap.append(el('div', { class: 'tr-urgency-banner' },
-      el('strong', {}, `${urgent.length} reservation${urgent.length > 1 ? 's' : ''} to book this week`),
-      el('span', { class: 'tr-urgency-sub' }, ' — see deadlines below'),
+
+  // (d) All booked
+  if (booked === totalNights) {
+    wrap.append(el('div', { class: 'tr-timeline-summary is-done' },
+      el('strong', {}, `All ${totalNights} reservations booked.`),
+      el('span', { class: 'tr-timeline-sub' }, ' Confirmation numbers saved on each night below.'),
+    ));
+    return wrap;
+  }
+
+  // (b)/(c) Some progress — one compact status line + optional urgency chip + optional jump CTA
+  const summary = el('div', { class: 'tr-timeline-summary' });
+  summary.append(el('strong', {}, `${picked} of ${totalNights} nights picked`));
+  if (booked > 0) summary.append(el('span', { class: 'tr-timeline-sub' }, ` · ${booked} booked`));
+  if (urgentUnbooked > 0) {
+    summary.append(el('span', { class: 'tr-timeline-chip tr-urgency-high' },
+      `${urgentUnbooked} to book this week`,
     ));
   }
-  const list = el('ol', { class: 'tr-timeline-list' });
-  for (const { night, r, booked, deadline, daysToBook } of rows) {
-    const li = el('li', { class: `tr-timeline-row ${booked ? 'is-booked' : ''}` });
-    const badge = booked
-      ? el('span', { class: 'tr-timeline-badge tr-urgency-done' }, '✓ Booked')
-      : el('span', { class: `tr-timeline-badge tr-urgency-${daysToBook <= 7 ? 'high' : daysToBook <= 21 ? 'med' : 'low'}` },
-          daysToBook <= 0 ? 'Book today' : `Book by ${formatShortDate(deadline)}`);
-    li.append(badge);
-    const body = el('div', { class: 'tr-timeline-body' });
-    body.append(el('p', { class: 'tr-timeline-name' },
-      `${r.name} · ${night.label || night.date}`,
-    ));
-    const note = booked?.confirmation ? `Confirmation #${booked.confirmation}` : (r.booking?.note || r.notes?.[0] || '');
-    body.append(el('p', { class: 'tr-timeline-note' },
-      note + ' ',
-      r.phone ? el('a', { href: 'tel:' + r.phone }, formatPhone(r.phone)) : null,
-    ));
-    li.append(body);
-    list.append(li);
+  wrap.append(summary);
+
+  if (firstUnbookedNight) {
+    const jump = el('button', {
+      type: 'button',
+      class: 'tr-timeline-jump',
+    }, `Jump to ${firstUnbookedNight.label || formatShortDate(new Date(firstUnbookedNight.date + 'T00:00:00'))} ↓`);
+    jump.addEventListener('click', () => {
+      const target = document.querySelector(`details.tr-night[data-date="${firstUnbookedNight.date}"]`);
+      if (target) {
+        if (target.tagName === 'DETAILS') target.open = true;
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    wrap.append(jump);
   }
-  wrap.append(list);
+
   return wrap;
 }
 
