@@ -2,7 +2,8 @@
    Variables are inherited from the host site when defined; sensible fallbacks otherwise.
    Override anything by targeting .tr-* selectors in the host site's CSS. */
 
-.tr-dining {
+.tr-dining,
+.tr-timeline {
   --tr-ink: var(--ink, #1c1815);
   --tr-paper: var(--paper, #f7f1e6);
   --tr-card: var(--card, #fdfaf3);
@@ -84,30 +85,180 @@
 .tr-config-input-num { width: 64px; text-align: center; }
 .tr-config-input-time { width: 110px; }
 
-/* ---------- Night card ---------- */
-.tr-nights { display: grid; gap: 22px; }
-.tr-night {
-  border: 1px solid var(--tr-rule);
+/* ---------- Night card (collapsible <details>) ---------- */
+.tr-nights { display: grid; gap: 14px; }
+details.tr-night {
+  border: 1px solid var(--tr-rule, #d9cdb2);
   border-radius: 8px;
-  background: var(--tr-card);
-  padding: 18px 18px 20px;
+  background: var(--tr-card, #fdfaf3);
+  overflow: hidden;
 }
-.tr-night-head { margin: 0 0 14px; }
+details.tr-night[open] { box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.tr-night-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: inherit;
+}
+.tr-night-summary::-webkit-details-marker { display: none; }
+.tr-night-summary::after {
+  content: "\203A";
+  margin-left: 8px;
+  font-size: 22px;
+  color: var(--tr-muted, #8a7f6c);
+  transition: transform .15s ease;
+  flex-shrink: 0;
+}
+details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
+.tr-night-summary-left { min-width: 0; flex: 1; }
+.tr-night-summary-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  max-width: 55%;
+  text-align: right;
+}
+.tr-night-body {
+  padding: 4px 18px 20px;
+  border-top: 1px solid var(--tr-rule, #d9cdb2);
+}
 .tr-night-date {
   font-family: var(--mono, ui-monospace, monospace);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--tr-muted);
+  color: var(--tr-muted, #8a7f6c);
   margin: 0 0 4px;
 }
 .tr-night-sub {
   margin: 0;
   font-size: 14px;
-  color: var(--tr-muted);
+  color: var(--tr-muted, #8a7f6c);
   font-style: italic;
 }
 .tr-night-party { font-style: normal; }
+.tr-night-status {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+.tr-night-status.is-picked { background: rgba(184, 134, 44, 0.12); color: var(--tr-gold, #b8862c); }
+.tr-night-status.is-booked { background: rgba(74, 122, 92, 0.14); color: var(--tr-green, #4a7a5c); }
+.tr-night-status.is-empty {
+  background: transparent;
+  color: var(--tr-muted, #8a7f6c);
+  border: 1px solid var(--tr-rule, #d9cdb2);
+}
+.tr-night-pick-name {
+  font-size: 13px;
+  color: var(--tr-ink, #1c1815);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .tr-night-summary { padding: 12px 14px; gap: 10px; }
+  .tr-night-body { padding: 4px 14px 16px; }
+  .tr-night-summary-right { max-width: 50%; }
+  .tr-night-pick-name { font-size: 12px; }
+}
+
+/* ---------- Global filter bar (above all nights) ---------- */
+.tr-global-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 14px 16px;
+  margin: 0 0 18px;
+  background: rgba(184, 134, 44, 0.06);
+  border: 1px solid var(--tr-rule, #d9cdb2);
+  border-radius: 8px;
+}
+.tr-global-filters-label {
+  margin: 0 6px 0 0;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-muted, #8a7f6c);
+}
+.tr-filter-chip-clear {
+  border-style: dashed !important;
+  color: var(--tr-muted, #8a7f6c) !important;
+}
+
+/* ---------- Two-suggestion grid (empty-night state) ---------- */
+.tr-suggestions-block { margin: 6px 0 16px; }
+.tr-suggestions-label {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tr-gold, #b8862c);
+  margin: 0 0 10px;
+}
+.tr-suggestions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .tr-suggestions-grid { grid-template-columns: 1fr; }
+}
+.tr-suggestion {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--tr-rule, #d9cdb2);
+  border-radius: 6px;
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tr-suggestion .tr-name { margin: 0; font-size: 1.05rem; }
+.tr-suggestion .tr-meta { font-size: 13px; color: var(--tr-muted, #8a7f6c); margin: 0; }
+.tr-suggestion-note { font-size: 13px; color: var(--tr-ink, #1c1815); font-style: italic; margin: 4px 0; line-height: 1.4; }
+.tr-suggestion-badge {
+  align-self: flex-start;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+.tr-suggestion-badge-rec { background: var(--tr-gold, #b8862c); color: #fff; }
+.tr-suggestion-badge-backup { background: var(--tr-muted, #8a7f6c); color: #fff; }
+.tr-btn-pick-suggestion {
+  margin-top: 4px;
+  background: var(--tr-gold, #b8862c);
+  color: #fff;
+  border: none;
+  padding: 9px 14px;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.tr-btn-pick-suggestion:hover { background: #9c7224; }
+.tr-suggestion .tr-closed-warning {
+  font-size: 11px;
+  color: var(--tr-rust, #a44d2b);
+  margin: 0;
+}
 
 /* ---------- Picked block ---------- */
 .tr-picked-block { margin-bottom: 18px; }
@@ -546,7 +697,7 @@
   border-radius: 6px;
 }
 .tr-urgency-banner {
-  background: var(--tr-rust);
+  background: var(--tr-rust, #a44d2b);
   color: #fff;
   padding: 12px 16px;
   border-radius: 6px;
@@ -578,10 +729,10 @@
   background: #efe5cd;
   color: var(--tr-ink);
 }
-.tr-urgency-high { background: var(--tr-rust); color: #fff; }
-.tr-urgency-med  { background: var(--tr-gold); color: #fff; }
-.tr-urgency-low  { background: transparent; border: 1px solid var(--tr-rule); }
-.tr-urgency-done { background: var(--tr-green); color: #fff; }
+.tr-urgency-high { background: var(--tr-rust, #a44d2b); color: #fff; }
+.tr-urgency-med  { background: var(--tr-gold, #b8862c); color: #fff; }
+.tr-urgency-low  { background: transparent; color: var(--tr-ink, #1c1815); border: 1px solid var(--tr-rule, #d9cdb2); }
+.tr-urgency-done { background: var(--tr-green, #4a7a5c); color: #fff; }
 
 .tr-timeline-name { margin: 0 0 4px; font-weight: 600; }
 .tr-timeline-note { margin: 0; color: var(--tr-muted); font-size: 14px; line-height: 1.5; }

@@ -23,12 +23,54 @@ export function mountDiningTab({ dataset, mount, storageKey = 'trip-restaurants'
   const rerenderAll = () => {
     root.innerHTML = '';
     root.append(renderHeader(dataset, state, rerenderAll));
+    root.append(renderGlobalFilters(dataset, state, rerenderAll));
     root.append(renderNights(dataset, state));
   };
   rerenderAll();
   mount.innerHTML = '';
   mount.append(root);
   return state;
+}
+
+// ---------- global filter state (cross-night) ----------
+const globalFilterState = {
+  walkable: false,
+  openOnly: true,
+  tiers: new Set(),
+};
+
+function renderGlobalFilters(dataset, state, rerenderAll) {
+  const bar = el('div', { class: 'tr-global-filters' });
+  bar.append(el('p', { class: 'tr-global-filters-label' }, 'Filter all nights:'));
+  const f = globalFilterState;
+  const makeChip = (label, isActive, onClick) => {
+    const chip = el('button', {
+      type: 'button',
+      class: `tr-filter-chip ${isActive ? 'is-active' : ''}`,
+    }, label);
+    chip.addEventListener('click', (e) => { e.preventDefault(); onClick(); rerenderAll(); });
+    return chip;
+  };
+  bar.append(makeChip('Open that night', f.openOnly, () => { f.openOnly = !f.openOnly; }));
+  bar.append(makeChip('Walkable from hotel', f.walkable, () => { f.walkable = !f.walkable; }));
+  const tierOrder = ['refined', 'elevated', 'signature'];
+  for (const t of tierOrder) {
+    const def = dataset.tiers?.[t]; if (!def) continue;
+    const isActive = f.tiers.has(t);
+    bar.append(makeChip(`${def.label} ${def.priceBand}`, isActive, () => {
+      if (isActive) f.tiers.delete(t); else f.tiers.add(t);
+    }));
+  }
+  if (f.walkable || !f.openOnly || f.tiers.size) {
+    const clear = el('button', { type: 'button', class: 'tr-filter-chip tr-filter-chip-clear' }, 'Clear');
+    clear.addEventListener('click', (e) => {
+      e.preventDefault();
+      f.walkable = false; f.openOnly = true; f.tiers.clear();
+      rerenderAll();
+    });
+    bar.append(clear);
+  }
+  return bar;
 }
 
 /** Render just the reservation timeline (urgent → less urgent) from currently picked restaurants. */
@@ -86,31 +128,6 @@ class PickerState {
       this._loadObj(this.keys.party),
     );
     this._subs = new Set();
-    // Seed curated picks on first load — only if user has no picks yet
-    // AND we've never seeded before (sentinel prevents re-overwriting if user
-    // intentionally clears a pick).
-    this._seedFromRecommendations();
-  }
-  _seedFromRecommendations() {
-    if (typeof localStorage === 'undefined') return;
-    const sentinelKey = `${this.keys.picks}-seeded`;
-    if (localStorage.getItem(sentinelKey)) return;
-    if (Object.keys(this.picks).length > 0) {
-      // User already has picks — mark sentinel so we don't reseed, but don't touch.
-      try { localStorage.setItem(sentinelKey, '1'); } catch {}
-      return;
-    }
-    let seeded = false;
-    for (const night of this.dataset.nights || []) {
-      const recId = night.recommended;
-      if (!recId) continue;
-      const r = (this.dataset.restaurants || []).find(x => x.id === recId);
-      if (!r) continue;
-      this.picks[night.date] = recId;
-      seeded = true;
-    }
-    if (seeded) this._save(this.keys.picks, this.picks);
-    try { localStorage.setItem(sentinelKey, '1'); } catch {}
   }
   resetAll() {
     this.picks = {};
@@ -122,8 +139,6 @@ class PickerState {
     if (typeof localStorage !== 'undefined') {
       try { localStorage.removeItem(`${this.keys.picks}-seeded`); } catch {}
     }
-    // Reseed defaults so reset = back to curated state, not empty
-    this._seedFromRecommendations();
     this._notify();
   }
   pickFor(night)            { return this.picks[night.date] || null; }
@@ -266,7 +281,7 @@ function renderHeader(dataset, state, onChange) {
   const wrap = el('div', { class: 'tr-header' });
   wrap.append(el('h2', {}, 'Dinners'));
   wrap.append(el('p', { class: 'tr-header-sub' },
-    `Each night below has a curated pick and a backup ready to book. Tap “Reserve” to open the booking page prefilled with your party size and time. Browse alternatives at any night to swap in a different restaurant.`));
+    `Tap any night to expand it. You’ll see two editor’s suggestions plus the full Santa Fe lineup — filter by walkability, price, or open-that-night. Your picks here also show up on each day’s tab.`));
 
   // Party-size + default-time controls. These drive deep-link prefills.
   const config = el('div', { class: 'tr-trip-config' });
@@ -327,17 +342,98 @@ function renderNights(dataset, state) {
 }
 
 function renderNightCard(dataset, night, state) {
-  const card = el('article', { class: 'tr-night', 'data-date': night.date });
+  // Each night is a <details> element — collapsed by default unless the user
+  // has already picked a restaurant for it.
+  const pickId = state.pickFor(night);
+  const card = el('details', {
+    class: 'tr-night',
+    'data-date': night.date,
+    ...(pickId ? { open: 'open' } : {}),
+  });
   const rerender = () => {
     const fresh = renderNightCard(dataset, night, state);
+    // Preserve open state on re-render
+    if (card.open) fresh.setAttribute('open', 'open');
     card.replaceWith(fresh);
   };
 
-  card.append(renderNightHeader(night, state));
-  card.append(renderPickedBlock(dataset, night, state, rerender));
-  card.append(renderBackupBlock(dataset, night, state, rerender));
-  card.append(renderPoolBlock(dataset, night, state, rerender));
-  card.append(renderNoteBlock(night, state));
+  card.append(renderNightSummary(dataset, night, state));
+  const body = el('div', { class: 'tr-night-body' });
+  body.append(renderPickedBlock(dataset, night, state, rerender));
+  if (!pickId) body.append(renderSuggestionsBlock(dataset, night, state, rerender));
+  else body.append(renderBackupBlock(dataset, night, state, rerender));
+  body.append(renderPoolBlock(dataset, night, state, rerender));
+  body.append(renderNoteBlock(night, state));
+  card.append(body);
+  return card;
+}
+
+function renderNightSummary(dataset, night, state) {
+  const summary = el('summary', { class: 'tr-night-summary' });
+  const left = el('div', { class: 'tr-night-summary-left' });
+  left.append(el('p', { class: 'tr-night-date' }, night.label || night.date));
+  const sub = el('p', { class: 'tr-night-sub' });
+  if (night.theme) sub.append(el('span', { class: 'tr-night-theme' }, night.theme));
+  if (night.time)  sub.append(el('span', { class: 'tr-night-time' }, ' · ' + night.time));
+  left.append(sub);
+  summary.append(left);
+
+  const right = el('div', { class: 'tr-night-summary-right' });
+  const pickId = state.pickFor(night);
+  const booking = state.bookingFor(night);
+  if (pickId) {
+    const r = dataset.restaurants.find(x => x.id === pickId);
+    if (r) {
+      const label = booking ? '✓ Booked' : 'Picked';
+      right.append(el('span', { class: `tr-night-status ${booking ? 'is-booked' : 'is-picked'}` }, label));
+      right.append(el('span', { class: 'tr-night-pick-name' }, r.name));
+    }
+  } else {
+    right.append(el('span', { class: 'tr-night-status is-empty' }, 'Tap to choose'));
+  }
+  summary.append(right);
+  return summary;
+}
+
+function renderSuggestionsBlock(dataset, night, state, rerender) {
+  const recId = night.recommended;
+  const backupId = night.backup;
+  const recR = recId ? dataset.restaurants.find(x => x.id === recId) : null;
+  const backupR = backupId ? dataset.restaurants.find(x => x.id === backupId) : null;
+  const block = el('div', { class: 'tr-suggestions-block' });
+  if (!recR && !backupR) return block;
+  block.append(el('p', { class: 'tr-suggestions-label' }, 'Our picks for this night'));
+  const grid = el('div', { class: 'tr-suggestions-grid' });
+  if (recR)    grid.append(renderSuggestionCard(dataset, recR, night, state, rerender, 'Editor’s pick'));
+  if (backupR) grid.append(renderSuggestionCard(dataset, backupR, night, state, rerender, 'Backup'));
+  block.append(grid);
+  return block;
+}
+
+function renderSuggestionCard(dataset, r, night, state, rerender, badgeLabel) {
+  const card = el('div', { class: `tr-suggestion tier-${r.tier}`, 'data-id': r.id });
+  card.append(el('span', { class: `tr-suggestion-badge tr-suggestion-badge-${badgeLabel === 'Backup' ? 'backup' : 'rec'}` }, badgeLabel));
+  const head = el('div', { class: 'tr-restaurant-head' });
+  head.append(el('h3', { class: 'tr-name' }, r.name));
+  const tierDef = dataset.tiers[r.tier];
+  if (tierDef) head.append(el('span', { class: `tr-tier-chip tr-tier-chip-${r.tier}` }, tierDef.priceBand));
+  card.append(head);
+  const meta = el('p', { class: 'tr-meta' });
+  if (r.cuisine) meta.append(el('span', {}, r.cuisine));
+  if (r.neighborhood) meta.append(el('span', {}, ' · ' + r.neighborhood));
+  card.append(meta);
+  if (r.notes?.length) card.append(el('p', { class: 'tr-suggestion-note' }, r.notes[0]));
+  const pickBtn = el('button', { type: 'button', class: 'tr-btn-pick-suggestion' }, `Pick ${r.name.split(/[—·]/)[0].trim()}`);
+  pickBtn.addEventListener('click', () => {
+    state.setPick(night, r.id);
+    state.setBooked(night, null);
+    rerender();
+  });
+  card.append(pickBtn);
+  const wd = weekdayOf(night.date);
+  if (!isOpenOn(r, wd)) {
+    card.append(el('p', { class: 'tr-closed-warning' }, `⚠ Closed ${DAY_LABELS[wd]}s`));
+  }
   return card;
 }
 
@@ -404,7 +500,7 @@ function renderPickedBlock(dataset, night, state, rerender) {
   const pickId = state.pickFor(night);
   const block = el('div', { class: 'tr-picked-block' });
   if (!pickId) {
-    block.append(el('p', { class: 'tr-picked-empty' }, 'No restaurant chosen for this night — pick one from the pool below, or use the backup.'));
+    // No empty-state text — suggestion cards render right below and explain themselves.
     return block;
   }
   const restaurant = dataset.restaurants.find(r => r.id === pickId);
@@ -513,43 +609,15 @@ function getNightFilters(night) {
 
 function renderPoolBlock(dataset, night, state, rerender) {
   const pickedId = state.pickFor(night);
-  // Always collapsed by default so the empty-state page isn't a 15-restaurant
-  // firehose per night. User explicitly opens to browse.
-  const block = el('details', { class: 'tr-pool' });
-  const summaryLabel = pickedId
-    ? 'Browse other options for this night'
-    : `Pick a restaurant for this night →`;
-  block.append(el('summary', { class: 'tr-pool-summary' }, summaryLabel));
+  // Pool always rendered open within an already-open night card. The night
+  // <details> wrapper handles the collapse, so this is just a grouped list.
+  const block = el('div', { class: 'tr-pool' });
+  block.append(el('p', { class: 'tr-pool-summary' },
+    pickedId ? 'All restaurants — swap in a different one anytime' : 'Browse the full lineup'));
 
   const wd = weekdayOf(night.date);
-  const filters = getNightFilters(night);
-
-  // ---- Filter chips ----
-  const chipBar = el('div', { class: 'tr-filter-bar' });
-  const tierOrder = ['refined', 'elevated', 'signature'];
-
-  const makeChip = (label, isActive, onClick, extraClass = '') => {
-    const chip = el('button', {
-      type: 'button',
-      class: `tr-filter-chip ${isActive ? 'is-active' : ''} ${extraClass}`,
-    }, label);
-    chip.addEventListener('click', (e) => { e.preventDefault(); onClick(); rerender(); });
-    return chip;
-  };
-
-  chipBar.append(
-    makeChip(`Open ${DAY_LABELS[wd]}`, filters.openOnly,
-      () => { filters.openOnly = !filters.openOnly; }, 'tr-filter-chip-open'),
-    makeChip('Walkable to Plaza', filters.walkable,
-      () => { filters.walkable = !filters.walkable; }, 'tr-filter-chip-walk'),
-  );
-  for (const tierId of tierOrder) {
-    const def = dataset.tiers[tierId];
-    chipBar.append(makeChip(`${def.priceBand} ${def.label}`, filters.tiers.has(tierId),
-      () => { if (filters.tiers.has(tierId)) filters.tiers.delete(tierId); else filters.tiers.add(tierId); },
-      `tr-filter-chip-tier tr-filter-chip-${tierId}`));
-  }
-  block.append(chipBar);
+  // Use global filters (set in renderGlobalFilters) instead of per-night state.
+  const filters = globalFilterState;
 
   // ---- Filtered + grouped lists ----
   const showAllTiers = filters.tiers.size === 0;
@@ -562,6 +630,7 @@ function renderPoolBlock(dataset, night, state, rerender) {
   };
 
   const byTier = { refined: [], elevated: [], signature: [] };
+  const tierOrder = ['refined', 'elevated', 'signature'];
   for (const r of dataset.restaurants) {
     if (byTier[r.tier] && matches(r)) byTier[r.tier].push(r);
   }
