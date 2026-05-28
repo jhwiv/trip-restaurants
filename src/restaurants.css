@@ -786,11 +786,11 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
 }
 .tr-filter-chip:hover {
   border-color: var(--tr-gold);
-  color: var(--tr-charcoal);
+  color: var(--tr-ink);
 }
 .tr-filter-chip.is-active {
-  background: var(--tr-charcoal);
-  border-color: var(--tr-charcoal);
+  background: var(--tr-ink);
+  border-color: var(--tr-ink);
   color: #fff;
 }
 .tr-filter-chip-tier.is-active {
