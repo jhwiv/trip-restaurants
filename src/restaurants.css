@@ -49,6 +49,50 @@
 .tr-legend-band  { color: var(--tr-gold); font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
 .tr-legend-blurb { color: var(--tr-muted); font-style: italic; }
 
+/* ---------- Trip-level settings disclosure (collapsed by default) ---------- */
+.tr-trip-settings {
+  margin: 0 0 22px;
+  border: 1px solid var(--tr-rule);
+  border-radius: 6px;
+  background: var(--tr-card);
+}
+.tr-trip-settings-summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  list-style: none;
+  position: relative;
+  padding-right: 32px;
+  user-select: none;
+}
+.tr-trip-settings-summary::-webkit-details-marker { display: none; }
+.tr-trip-settings-summary::after {
+  content: "›";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  font-size: 16px;
+  color: var(--tr-muted);
+  transition: transform 0.15s ease;
+}
+.tr-trip-settings[open] > .tr-trip-settings-summary::after {
+  transform: translateY(-50%) rotate(270deg);
+}
+.tr-trip-settings-summary:hover { color: var(--tr-ink); }
+.tr-trip-settings[open] > .tr-trip-settings-summary {
+  border-bottom: 1px solid var(--tr-rule);
+}
+.tr-trip-settings-body {
+  padding: 14px;
+}
+.tr-trip-settings-body .tr-trip-config { margin: 0 0 12px; border: none; padding: 0; background: transparent; }
+.tr-trip-settings-body .tr-legend { margin: 0; border: none; padding: 0; background: transparent; }
+
 /* ---------- Trip-level config (party size, default time) ---------- */
 .tr-trip-config {
   display: flex;

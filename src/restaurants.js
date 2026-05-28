@@ -23,7 +23,8 @@ export function mountDiningTab({ dataset, mount, storageKey = 'trip-restaurants'
   const rerenderAll = () => {
     root.innerHTML = '';
     root.append(renderHeader(dataset, state, rerenderAll));
-    root.append(renderGlobalFilters(dataset, state, rerenderAll));
+    // Global cross-night filter chips were removed — tier selection now happens
+    // inside each night card, so a trip-level filter row was redundant.
     root.append(renderNights(dataset, state));
   };
   rerenderAll();
@@ -312,6 +313,12 @@ function renderHeader(dataset, state, onChange) {
   // (Section heading + intro are rendered by the host page's .lede;
   // don't duplicate them here.)
 
+  // Trip-wide settings live inside a single collapsed disclosure so they
+  // don't push the first night card below the fold on mobile.
+  const settings = el('details', { class: 'tr-trip-settings' });
+  settings.append(el('summary', { class: 'tr-trip-settings-summary' }, 'Trip settings'));
+  const settingsBody = el('div', { class: 'tr-trip-settings-body' });
+
   // Party-size + default-time controls. These drive deep-link prefills.
   const config = el('div', { class: 'tr-trip-config' });
   const partyLabel = el('label', { class: 'tr-config-label', for: 'tr-party-size' }, 'Party size');
@@ -346,7 +353,7 @@ function renderHeader(dataset, state, onChange) {
     el('div', { class: 'tr-config-group' }, partyLabel, partyInput),
     el('div', { class: 'tr-config-group' }, timeLabel, timeInput),
   );
-  wrap.append(config);
+  settingsBody.append(config);
 
   const legend = el('div', { class: 'tr-legend' });
   for (const [id, t] of Object.entries(dataset.tiers || {})) {
@@ -356,7 +363,9 @@ function renderHeader(dataset, state, onChange) {
       t.blurb ? el('span', { class: 'tr-legend-blurb' }, t.blurb) : null,
     ));
   }
-  wrap.append(legend);
+  settingsBody.append(legend);
+  settings.append(settingsBody);
+  wrap.append(settings);
   return wrap;
 }
 
@@ -982,11 +991,9 @@ function renderTimeline(dataset, state) {
 
   const wrap = el('div', { class: 'tr-timeline-wrap' });
 
-  // (a) Nothing picked yet — short empty state, no scary banner
+  // (a) Nothing picked yet — render nothing. The Dining tab's lede already
+  // tells the user to pick a restaurant; a duplicate pill here was redundant.
   if (picked === 0) {
-    wrap.append(el('p', { class: 'tr-timeline-empty' },
-      `Pick a restaurant for each of your ${totalNights} nights below. Top Santa Fe tables — especially on Canyon Road — book 4–6 weeks ahead in June.`,
-    ));
     return wrap;
   }
 
