@@ -139,6 +139,58 @@
   border-left-color: var(--tr-green);
 }
 
+/* ---------- Backup card ---------- */
+.tr-backup-block {
+  margin: 12px 0 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--tr-rule);
+}
+.tr-backup-empty { display: none; }
+.tr-backup-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-backup-chip {
+  background: var(--tr-muted, #777);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+.tr-backup-label-text { font-style: normal; }
+.tr-restaurant-backup {
+  background: #fafaf7;
+  border: 1px solid var(--tr-rule);
+  border-left: 3px solid var(--tr-muted);
+  border-radius: 6px;
+  padding: 12px 14px;
+  opacity: 0.95;
+}
+.tr-restaurant-backup .tr-name { font-size: 1rem; }
+.tr-restaurant-backup .tr-notes { font-size: 0.85rem; }
+.tr-btn-promote {
+  background: none;
+  border: 1px solid var(--tr-rule);
+  color: var(--tr-ink);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.tr-btn-promote:hover {
+  border-color: var(--tr-gold);
+  color: var(--tr-gold);
+}
+
 .tr-restaurant-head { margin-bottom: 6px; }
 .tr-restaurant-top {
   display: flex;

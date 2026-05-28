@@ -5,7 +5,7 @@
     "startDate": "2026-06-03",
     "endDate": "2026-06-10",
     "currency": "USD",
-    "notes": "Pool-based lineup updated 2026-05-27 (added Luminaria + Mon Jun 8 night). Every restaurant lives in its real price band ($$ Refined / $$$ Elevated / $$$$ Signature). Each night displays the full pool; you pick what you want at the price you want — nothing is pre-selected. Restaurants closed on a given night's weekday are dimmed.",
+    "notes": "Pool-based lineup updated 2026-05-27. Each night has a curated primary recommendation + backup; both are bookable cards. You can swap either at any time by browsing the full pool below — nothing is locked in.",
     "party": {
       "size": 1,
       "defaultTime": "19:00",
@@ -706,43 +706,57 @@
       "date": "2026-06-03",
       "label": "Wed Jun 3 — Arrival dinner",
       "theme": "Near the Plaza, low-key after the flight.",
-      "time": "7:00 PM"
+      "time": "7:00 PM",
+      "recommended": "anasazi-restaurant",
+      "backup": "sazon-santa-fe"
     },
     {
       "date": "2026-06-04",
       "label": "Thu Jun 4 — Canyon Road night",
       "theme": "Adobe and lamplight, oldest dining street in town.",
-      "time": "7:00 PM"
+      "time": "7:00 PM",
+      "recommended": "the-compound-restaurant",
+      "backup": "geronimo-canyon"
     },
     {
       "date": "2026-06-05",
       "label": "Fri Jun 5 — Railyard night",
       "theme": "Downtown's modern side, gallery openings, contemporary cooking.",
-      "time": "7:30 PM"
+      "time": "7:30 PM",
+      "recommended": "geronimo-canyon",
+      "backup": "josephs-culinary-pub"
     },
     {
       "date": "2026-06-06",
       "label": "Sat Jun 6 — Spa night",
       "theme": "Ten Thousand Waves: hot tubs at dusk, dinner at Izanami.",
-      "time": "7:30 PM"
+      "time": "7:30 PM",
+      "recommended": "luminaria-loretto",
+      "backup": "restaurant-martin-farewell-tasting"
     },
     {
       "date": "2026-06-07",
       "label": "Sun Jun 7 — Plaza wander",
       "theme": "Galleries open late, slow Sunday pace. Many top kitchens are closed today.",
-      "time": "7:00 PM"
+      "time": "7:00 PM",
+      "recommended": "coyote-cafe-rooftop",
+      "backup": "restaurant-martin-farewell-tasting"
     },
     {
       "date": "2026-06-08",
       "label": "Mon Jun 8 — Canyon Road encore",
       "theme": "Last full day; late dinner before Tuesday's farewell.",
-      "time": "7:00 PM"
+      "time": "7:00 PM",
+      "recommended": "geronimo-canyon",
+      "backup": "the-compound-restaurant"
     },
     {
       "date": "2026-06-09",
       "label": "Tue Jun 9 — Farewell dinner",
       "theme": "Last night in Santa Fe — go out properly.",
-      "time": "7:30 PM"
+      "time": "7:30 PM",
+      "recommended": "luminaria-loretto",
+      "backup": "coyote-cafe-rooftop"
     }
   ],
   "supplementary": {

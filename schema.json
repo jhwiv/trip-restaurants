@@ -73,7 +73,9 @@
         "date": { "type": "string", "format": "date" },
         "label": { "type": "string", "description": "Human-readable night label (e.g. 'Fri Jun 5 — Canyon Road night')." },
         "theme": { "type": "string", "description": "Optional theme line (e.g. 'arrival', 'Canyon Road night', 'farewell')." },
-        "time": { "type": "string", "description": "Default dinner time for this night (e.g. '7:00 PM'). Overrides trip.party.defaultTime when present." }
+        "time": { "type": "string", "description": "Default dinner time for this night (e.g. '7:00 PM'). Overrides trip.party.defaultTime when present." },
+        "recommended": { "type": "string", "description": "Curated primary restaurant id for this night. Used to pre-seed the picker on first visit so the Dining tab opens with an answer, not a blank workspace. User can still change the pick." },
+        "backup": { "type": "string", "description": "Curated backup restaurant id for this night. Always visible as a secondary card under the primary so the traveler has a fallback if the primary can't book." }
       }
     },
 
