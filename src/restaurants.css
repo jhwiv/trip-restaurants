@@ -190,14 +190,32 @@
   font-size: 14px;
 }
 .tr-booked-check { font-weight: 700; }
-.tr-booked-clear {
+.tr-booked-text { flex: 1; }
+.tr-booked-actions {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.tr-booked-ics,
+.tr-booked-clear {
   color: var(--tr-green);
   font-size: 12px;
   background: transparent;
   border: none;
   cursor: pointer;
   text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+}
+.tr-booked-ics { font-weight: 600; }
+.tr-booked-ics:hover,
+.tr-booked-clear:hover { color: #2f5a45; }
+@media (max-width: 480px) {
+  .tr-booked-banner { flex-wrap: wrap; }
+  .tr-booked-actions { margin-left: 0; width: 100%; justify-content: space-between; }
 }
 
 /* ---------- Mark-as-booked controls ---------- */
@@ -517,9 +535,59 @@
 .tr-timeline-note { margin: 0; color: var(--tr-muted); font-size: 14px; line-height: 1.5; }
 .tr-timeline-note a { color: var(--tr-gold); }
 
+/* ---------- Pool filter chips ---------- */
+.tr-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px 4px;
+  border-top: 1px solid var(--tr-rule);
+  background: rgba(248, 245, 240, 0.5);
+}
+.tr-filter-chip {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--tr-rule);
+  background: #fff;
+  color: var(--tr-muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.tr-filter-chip:hover {
+  border-color: var(--tr-gold);
+  color: var(--tr-charcoal);
+}
+.tr-filter-chip.is-active {
+  background: var(--tr-charcoal);
+  border-color: var(--tr-charcoal);
+  color: #fff;
+}
+.tr-filter-chip-tier.is-active {
+  background: var(--tr-gold);
+  border-color: var(--tr-gold);
+  color: #fff;
+}
+.tr-pool-empty {
+  margin: 0;
+  padding: 22px 16px;
+  color: var(--tr-muted);
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
+  border-top: 1px solid var(--tr-rule);
+}
+
 /* ---------- Mobile ---------- */
 @media (max-width: 640px) {
   .tr-pool-grid { grid-template-columns: 1fr; }
   .tr-timeline-row { grid-template-columns: 1fr; }
   .tr-restaurant-top { flex-direction: column; align-items: flex-start; }
+  .tr-filter-bar { padding: 8px 12px 4px; }
+  .tr-filter-chip { font-size: 11px; padding: 4px 9px; }
 }

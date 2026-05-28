@@ -19,7 +19,7 @@
           "type": "object",
           "description": "Default party config used when deep-linking to OpenTable/Resy.",
           "properties": {
-            "size": { "type": "integer", "minimum": 1, "default": 2 },
+            "size": { "type": "integer", "minimum": 1, "default": 1 },
             "defaultTime": { "type": "string", "description": "Default dinner time, e.g. '19:00' or '7:00 PM'." },
             "dietary": { "type": "array", "items": { "type": "string" }, "description": "Free-text dietary notes the traveler may want to reference when calling." }
           }

@@ -50,7 +50,7 @@ export function buildBookingUrl(restaurant, night, party) {
   const url = new URL(b.url);
   const time = (night?.time || party?.defaultTime || '19:00').replace(/\s*(AM|PM)$/i, '');
   const date = night?.date;
-  const size = party?.size || 2;
+  const size = party?.size || 1;
   if (!date) return b.url;
   if (b.platform === 'opentable') {
     // OpenTable: ?dateTime=YYYY-MM-DDTHH:MM:SS&covers=N
@@ -81,7 +81,7 @@ class PickerState {
     this.notes    = this._loadObj(this.keys.notes);
     // Party overrides — start from dataset default, then merge stored
     this.party    = Object.assign(
-      { size: 2, defaultTime: '19:00' },
+      { size: 1, defaultTime: '19:00' },
       dataset.trip?.party || {},
       this._loadObj(this.keys.party),
     );
@@ -140,6 +140,69 @@ function toHHMM(t) {
   return '19:00';
 }
 function pad(n) { return String(n).padStart(2, '0'); }
+
+// ---------- ICS / Add-to-Calendar ----------
+// Builds a single VEVENT for the booked dinner and triggers a file download.
+// Format: floating local time (no TZID) so it lands at the same wall-clock
+// time regardless of which calendar the user imports it into.
+function toIcsLocal(date, hhmm) {
+  // date: 'YYYY-MM-DD', hhmm: 'HH:MM' → 'YYYYMMDDTHHMMSS'
+  return date.replace(/-/g, '') + 'T' + hhmm.replace(':', '') + '00';
+}
+function addHours(date, hhmm, hours) {
+  const [y, m, d] = date.split('-').map(Number);
+  const [h, mi] = hhmm.split(':').map(Number);
+  const dt = new Date(y, m - 1, d, h, mi);
+  dt.setHours(dt.getHours() + hours);
+  return {
+    date: `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`,
+    hhmm: `${pad(dt.getHours())}:${pad(dt.getMinutes())}`,
+  };
+}
+function icsEscape(s) {
+  return String(s || '').replace(/[\\;,]/g, '\\$&').replace(/\n/g, '\\n');
+}
+function downloadIcs(restaurant, night, state, booking) {
+  const time = toHHMM(night?.time || state.party?.defaultTime || '19:00');
+  const startStr = toIcsLocal(night.date, time);
+  const end = addHours(night.date, time, 2); // assume 2-hour dinner
+  const endStr = toIcsLocal(end.date, end.hhmm);
+  const uid = `${restaurant.id}-${night.date}@trip-restaurants`;
+  const dtstamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const partySize = state.party?.size || 1;
+  const descLines = [
+    `Reservation for ${partySize}`,
+    booking?.confirmation ? `Confirmation: ${booking.confirmation}` : '',
+    restaurant.phone ? `Phone: ${formatPhone(restaurant.phone)}` : '',
+    restaurant.website ? `Web: ${restaurant.website}` : '',
+    restaurant.booking?.note || '',
+  ].filter(Boolean).join('\n');
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//trip-restaurants//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${dtstamp}`,
+    `DTSTART:${startStr}`,
+    `DTEND:${endStr}`,
+    `SUMMARY:${icsEscape('Dinner · ' + restaurant.name)}`,
+    restaurant.address ? `LOCATION:${icsEscape(restaurant.address)}` : '',
+    `DESCRIPTION:${icsEscape(descLines)}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].filter(Boolean).join('\r\n');
+  const blob = new Blob([lines], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${restaurant.id}-${night.date}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+}
 
 function bookDeadlineFor(restaurant, night) {
   // Compute the "book by" date given the trip date and the restaurant's lead time.
@@ -282,10 +345,15 @@ function renderPickedCard(dataset, r, night, state, rerender) {
   if (isBooked) {
     const booked = el('div', { class: 'tr-booked-banner' });
     booked.append(el('span', { class: 'tr-booked-check' }, '✓'));
-    booked.append(el('span', {}, ` Booked${booking.confirmation ? ' · #' + booking.confirmation : ''}`));
+    booked.append(el('span', { class: 'tr-booked-text' }, ` Booked${booking.confirmation ? ' · #' + booking.confirmation : ''}`));
+    const actionsRow = el('span', { class: 'tr-booked-actions' });
+    const icsBtn = el('button', { type: 'button', class: 'tr-btn-link tr-booked-ics', title: 'Download .ics calendar file' }, '📅 Add to Calendar');
+    icsBtn.addEventListener('click', () => downloadIcs(r, night, state, booking));
+    actionsRow.append(icsBtn);
     const clearBtn = el('button', { type: 'button', class: 'tr-btn-link tr-booked-clear' }, 'Clear');
     clearBtn.addEventListener('click', () => { state.setBooked(night, null); rerender(); });
-    booked.append(clearBtn);
+    actionsRow.append(clearBtn);
+    booked.append(actionsRow);
     card.append(booked);
   }
 
@@ -343,6 +411,18 @@ function renderRestaurantHead(dataset, r) {
   return head;
 }
 
+// Pool filter state lives in memory per render (not persisted) — filters
+// are a transient browse aid, not a long-term preference. Each night has
+// its own filter state because users may want different filters per night.
+const poolFilters = new Map(); // night.date → { openOnly, walkable, tiers:Set }
+
+function getNightFilters(night) {
+  if (!poolFilters.has(night.date)) {
+    poolFilters.set(night.date, { openOnly: true, walkable: false, tiers: new Set() });
+  }
+  return poolFilters.get(night.date);
+}
+
 function renderPoolBlock(dataset, night, state, rerender) {
   const pickedId = state.pickFor(night);
   // Always collapsed by default so the empty-state page isn't a 15-restaurant
@@ -352,12 +432,58 @@ function renderPoolBlock(dataset, night, state, rerender) {
     ? 'Browse other options'
     : `Pick a restaurant for this night →`;
   block.append(el('summary', { class: 'tr-pool-summary' }, summaryLabel));
+
   const wd = weekdayOf(night.date);
+  const filters = getNightFilters(night);
+
+  // ---- Filter chips ----
+  const chipBar = el('div', { class: 'tr-filter-bar' });
+  const tierOrder = ['refined', 'elevated', 'signature'];
+
+  const makeChip = (label, isActive, onClick, extraClass = '') => {
+    const chip = el('button', {
+      type: 'button',
+      class: `tr-filter-chip ${isActive ? 'is-active' : ''} ${extraClass}`,
+    }, label);
+    chip.addEventListener('click', (e) => { e.preventDefault(); onClick(); rerender(); });
+    return chip;
+  };
+
+  chipBar.append(
+    makeChip(`Open ${DAY_LABELS[wd]}`, filters.openOnly,
+      () => { filters.openOnly = !filters.openOnly; }, 'tr-filter-chip-open'),
+    makeChip('Walkable to Plaza', filters.walkable,
+      () => { filters.walkable = !filters.walkable; }, 'tr-filter-chip-walk'),
+  );
+  for (const tierId of tierOrder) {
+    const def = dataset.tiers[tierId];
+    chipBar.append(makeChip(`${def.priceBand} ${def.label}`, filters.tiers.has(tierId),
+      () => { if (filters.tiers.has(tierId)) filters.tiers.delete(tierId); else filters.tiers.add(tierId); },
+      `tr-filter-chip-tier tr-filter-chip-${tierId}`));
+  }
+  block.append(chipBar);
+
+  // ---- Filtered + grouped lists ----
+  const showAllTiers = filters.tiers.size === 0;
+  const matches = (r) => {
+    if (r.id === pickedId) return false; // hide already-picked
+    if (filters.openOnly && !isOpenOn(r, wd)) return false;
+    if (filters.walkable && !isWalkable(r)) return false;
+    if (!showAllTiers && !filters.tiers.has(r.tier)) return false;
+    return true;
+  };
+
   const byTier = { refined: [], elevated: [], signature: [] };
   for (const r of dataset.restaurants) {
-    if (byTier[r.tier]) byTier[r.tier].push(r);
+    if (byTier[r.tier] && matches(r)) byTier[r.tier].push(r);
   }
-  const tierOrder = ['refined', 'elevated', 'signature'];
+  const totalMatches = byTier.refined.length + byTier.elevated.length + byTier.signature.length;
+  if (totalMatches === 0) {
+    block.append(el('p', { class: 'tr-pool-empty' },
+      'No restaurants match these filters. Clear filters or widen them above.'));
+    return block;
+  }
+
   for (const tierId of tierOrder) {
     const list = byTier[tierId];
     if (!list.length) continue;
@@ -376,6 +502,16 @@ function renderPoolBlock(dataset, night, state, rerender) {
     block.append(section);
   }
   return block;
+}
+
+// Walkable = Plaza, Downtown, Canyon Road, Don Gaspar, Railyard, Guadalupe areas.
+// Used by the 'Walkable to Plaza' filter chip.
+const WALKABLE_NEIGHBORHOODS = [
+  'plaza', 'downtown', 'canyon', 'don gaspar', 'railyard', 'guadalupe',
+];
+function isWalkable(r) {
+  const n = (r.neighborhood || '').toLowerCase();
+  return WALKABLE_NEIGHBORHOODS.some(k => n.includes(k));
 }
 
 function renderPoolCard(dataset, r, night, state, rerender, weekday) {
