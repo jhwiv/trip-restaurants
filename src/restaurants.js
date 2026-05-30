@@ -128,22 +128,46 @@ class PickerState {
     this.bookings = this._loadObj(this.keys.bookings);
     this.notes    = this._loadObj(this.keys.notes);
 
-    // One-time migration: tier-picker release no longer pre-seeds curated
-    // picks, but earlier sessions saved 7 default picks to localStorage.
-    // Clear those once so users see the new empty / tier-picker state.
-    // Picks the user actively saved after the migration ran are preserved.
+    // ----- Fix A: soften one-time "clear curated seeds" migration -----
+    // The tier-picker release no longer pre-seeds curated picks. Earlier
+    // sessions saved 7 default picks to localStorage, and the original
+    // migration nuked anything that LOOKED like a seed: 7 valid picks +
+    // no bookings. That's wrong — a user can have 7 real picks and zero
+    // bookings (they haven't booked yet). We now ONLY nuke when there is
+    // ZERO evidence of user engagement: no notes, no bookings, no party
+    // overrides, AND the 7 picks exactly match the historical curated
+    // seed restaurants. If any of those signals exist, treat the picks
+    // as real and leave them alone.
     if (typeof localStorage !== 'undefined') {
       const migKey = `${baseKey}-mig-tierpicker-2026-05`;
       try {
         if (!localStorage.getItem(migKey)) {
+          const partyOverridden = !!localStorage.getItem(this.keys.party);
+          const hasNotes = Object.keys(this.notes || {}).length > 0;
+          const hasBookings = Object.keys(this.bookings || {}).length > 0;
           const validIds = new Set((dataset.restaurants || []).map(r => r.id));
-          // If every saved pick maps to a valid restaurant AND looks like the
-          // old curated seed (one pick per night, all 7 set), drop them.
           const nightDates = new Set((dataset.nights || []).map(n => n.date));
           const pickEntries = Object.entries(this.picks);
           const allOnTripNights = pickEntries.every(([d]) => nightDates.has(d));
           const allValidIds = pickEntries.every(([, id]) => validIds.has(id));
-          const looksLikeSeed = pickEntries.length === (dataset.nights || []).length && pickEntries.length > 0 && allOnTripNights && allValidIds && Object.keys(this.bookings).length === 0;
+          // Historical curated seed IDs (Santa Fe trip). If the pick set is
+          // EXACTLY this set, we know it's the old seed and can drop it.
+          // If even one pick differs, we treat the data as user-modified.
+          const CURATED_SEED_IDS = new Set([
+            'anasazi-restaurant', 'the-compound-restaurant',
+            'geronimo-canyon', 'luminaria-loretto', 'coyote-cafe-rooftop',
+            'josephs-culinary-pub', 'restaurant-martin-farewell-tasting',
+          ]);
+          const pickedIds = pickEntries.map(([, id]) => id);
+          const matchesCuratedSeed =
+            pickedIds.length === CURATED_SEED_IDS.size &&
+            pickedIds.every(id => CURATED_SEED_IDS.has(id));
+          const looksLikeSeed =
+            pickEntries.length === (dataset.nights || []).length &&
+            pickEntries.length > 0 &&
+            allOnTripNights && allValidIds &&
+            !hasBookings && !hasNotes && !partyOverridden &&
+            matchesCuratedSeed;
           if (looksLikeSeed) {
             this.picks = {};
             this._save(this.keys.picks, this.picks);
@@ -151,6 +175,20 @@ class PickerState {
           localStorage.setItem(migKey, '1');
         }
       } catch {}
+    }
+
+    // ----- Fix B: self-heal stale picks that reference deleted restaurants.
+    // If the dataset has been edited (restaurant ID renamed or removed),
+    // a saved pick can dangle forever, showing a confusing 'no pool match'
+    // empty card on Day N. Drop those orphan entries on load so the night
+    // re-enters the tier-picker flow cleanly.
+    {
+      const validIds = new Set((dataset.restaurants || []).map(r => r.id));
+      let removedAny = false;
+      for (const [date, id] of Object.entries(this.picks)) {
+        if (!validIds.has(id)) { delete this.picks[date]; removedAny = true; }
+      }
+      if (removedAny) this._save(this.keys.picks, this.picks);
     }
     // Party overrides — start from dataset default, then merge stored
     this.party    = Object.assign(
@@ -382,7 +420,17 @@ function renderNights(dataset, state) {
 function renderNightCard(dataset, night, state) {
   // Each night is a <details> element — collapsed by default unless the user
   // has already picked a restaurant for it.
-  const pickId = state.pickFor(night);
+  let pickId = state.pickFor(night);
+  // ----- Fix C: defensive recovery from orphan picks.
+  // Fix B drops orphans on load, but if the dataset is somehow swapped
+  // mid-session (or the pick was written by a different module version),
+  // a stale pickId can sneak through. Detect it here and clear so the
+  // user isn't stranded on a 'pick exists but restaurant unknown' card.
+  if (pickId && !dataset.restaurants.find(r => r.id === pickId)) {
+    state.setPick(night, null);
+    state.setBooked(night, null);
+    pickId = null;
+  }
   const card = el('details', {
     class: 'tr-night',
     'data-date': night.date,
@@ -544,14 +592,13 @@ function renderNightSummary(dataset, night, state) {
   const right = el('div', { class: 'tr-night-summary-right' });
   const pickId = state.pickFor(night);
   const booking = state.bookingFor(night);
-  if (pickId) {
-    const r = dataset.restaurants.find(x => x.id === pickId);
-    if (r) {
-      const label = booking ? '✓ Booked' : 'Picked';
-      right.append(el('span', { class: `tr-night-status ${booking ? 'is-booked' : 'is-picked'}` }, label));
-      right.append(el('span', { class: 'tr-night-pick-name' }, r.name));
-    }
+  const pickedR = pickId ? dataset.restaurants.find(x => x.id === pickId) : null;
+  if (pickId && pickedR) {
+    const label = booking ? '✓ Booked' : 'Picked';
+    right.append(el('span', { class: `tr-night-status ${booking ? 'is-booked' : 'is-picked'}` }, label));
+    right.append(el('span', { class: 'tr-night-pick-name' }, pickedR.name));
   } else {
+    // Either no pick OR orphan pick — in both cases show the actionable prompt.
     right.append(el('span', { class: 'tr-night-status is-empty' }, 'Tap to choose'));
   }
   summary.append(right);
