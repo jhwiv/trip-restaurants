@@ -123,10 +123,12 @@ class PickerState {
       bookings: `${baseKey}-bookings`, // { 'YYYY-MM-DD': { confirmation, bookedAt } }
       notes:    `${baseKey}-notes`,    // { 'YYYY-MM-DD': 'free text' }
       party:    `${baseKey}-party`,    // { size, defaultTime }
+      customs:  `${baseKey}-customs`,  // { 'YYYY-MM-DD': { name, time, url, neighborhood } }
     };
     this.picks    = this._loadObj(this.keys.picks);
     this.bookings = this._loadObj(this.keys.bookings);
     this.notes    = this._loadObj(this.keys.notes);
+    this.customs  = this._loadObj(this.keys.customs);
 
     // ----- Fix A: soften one-time "clear curated seeds" migration -----
     // The tier-picker release no longer pre-seeds curated picks. Earlier
@@ -202,9 +204,11 @@ class PickerState {
     this.picks = {};
     this.bookings = {};
     this.notes = {};
+    this.customs = {};
     this._save(this.keys.picks, this.picks);
     this._save(this.keys.bookings, this.bookings);
     this._save(this.keys.notes, this.notes);
+    this._save(this.keys.customs, this.customs);
     if (typeof localStorage !== 'undefined') {
       try { localStorage.removeItem(`${this.keys.picks}-seeded`); } catch {}
     }
@@ -214,6 +218,16 @@ class PickerState {
   setPick(night, restId)    { if (restId) this.picks[night.date] = restId; else delete this.picks[night.date]; this._save(this.keys.picks, this.picks); this._notify(); }
   bookingFor(night)         { return this.bookings[night.date] || null; }
   setBooked(night, info)    { if (info) this.bookings[night.date] = info; else delete this.bookings[night.date]; this._save(this.keys.bookings, this.bookings); this._notify(); }
+  // Custom (off-list) restaurant for a night. When set, it overrides the
+  // curated pick flow — the night renders the custom card instead.
+  customFor(night)          { return this.customs[night.date] || null; }
+  setCustom(night, info)    {
+    if (info) this.customs[night.date] = info; else delete this.customs[night.date];
+    this._save(this.keys.customs, this.customs);
+    // A custom overrides any curated pick — clear the pick to avoid ambiguity.
+    if (info && this.picks[night.date]) { delete this.picks[night.date]; this._save(this.keys.picks, this.picks); }
+    this._notify();
+  }
   noteFor(night)            { return this.notes[night.date] || ''; }
   setNote(night, text)      { if (text) this.notes[night.date] = text; else delete this.notes[night.date]; this._save(this.keys.notes, this.notes); /* no full notify — notes don't change timeline */ }
   setParty(partial)         { Object.assign(this.party, partial); this._save(this.keys.party, this.party); this._notify(); }
@@ -415,6 +429,11 @@ function renderHeader(dataset, state, onChange) {
   settingsBody.append(legend);
   settings.append(settingsBody);
   wrap.append(settings);
+
+  // Top-of-tab browse chips — always visible so users can find new spots without
+  // expanding a specific night first. Passes night=null so OpenTable doesn't
+  // pre-pin a single date.
+  wrap.append(renderBrowseChips(null, state, 'top'));
   return wrap;
 }
 
@@ -430,8 +449,9 @@ function renderNights(dataset, state) {
 
 function renderNightCard(dataset, night, state) {
   // Each night is a <details> element — collapsed by default unless the user
-  // has already picked a restaurant for it.
+  // has already picked a restaurant for it (curated or custom).
   let pickId = state.pickFor(night);
+  const custom = state.customFor(night);
   // ----- Fix C: defensive recovery from orphan picks.
   // Fix B drops orphans on load, but if the dataset is somehow swapped
   // mid-session (or the pick was written by a different module version),
@@ -442,11 +462,14 @@ function renderNightCard(dataset, night, state) {
     state.setBooked(night, null);
     pickId = null;
   }
+  const isPicked = !!(pickId || custom);
   const card = el('details', {
-    class: 'tr-night',
+    class: 'tr-night' + (custom ? ' is-custom' : ''),
     'data-date': night.date,
-    ...(pickId ? { open: 'open' } : {}),
+    ...(isPicked ? { open: 'open' } : {}),
   });
+  // Show inline add-custom form when this night is in 'adding' state.
+  const showAddForm = nightAddingCustom.has(night.date);
   const rerender = () => {
     const fresh = renderNightCard(dataset, night, state);
     // Preserve open state on re-render
@@ -456,8 +479,11 @@ function renderNightCard(dataset, night, state) {
 
   card.append(renderNightSummary(dataset, night, state));
   const body = el('div', { class: 'tr-night-body' });
-  if (pickId) {
-    // User has chosen — show picked card + backup suggestion + note
+  if (custom) {
+    // User added their own restaurant for this night.
+    body.append(renderCustomBlock(dataset, night, state, rerender));
+  } else if (pickId) {
+    // User has chosen from the curated pool — show picked card + backup + note
     body.append(renderPickedBlock(dataset, night, state, rerender));
     body.append(renderBackupBlock(dataset, night, state, rerender));
   } else {
@@ -465,8 +491,12 @@ function renderNightCard(dataset, night, state) {
     //   1. No tier chosen → show 3-tier picker ($$ / $$$ / $$$$)
     //   2. Tier chosen   → show compact list of restaurants in that tier
     const tier = nightTierSelection.get(night.date);
-    if (!tier) {
+    if (showAddForm) {
+      body.append(renderCustomForm(night, state, rerender, null));
+    } else if (!tier) {
       body.append(renderTierPicker(dataset, night, state, rerender));
+      body.append(renderAddCustomCta(night, rerender));
+      body.append(renderBrowseChips(night, state, 'in-picker'));
     } else {
       body.append(renderTierList(dataset, night, state, tier, rerender));
     }
@@ -474,6 +504,275 @@ function renderNightCard(dataset, night, state) {
   body.append(renderNoteBlock(night, state));
   card.append(body);
   return card;
+}
+
+// Per-night flag: night.date is in this Set when the user is filling in the
+// 'add my own reservation' form. Cleared on save or cancel.
+const nightAddingCustom = new Set();
+
+// ---------- 'Add my own reservation' CTA + form ----------
+function renderAddCustomCta(night, rerender) {
+  const wrap = el('div', { class: 'tr-add-custom-cta' });
+  const btn = el('button', { type: 'button', class: 'tr-btn-add-custom' },
+    el('span', { class: 'tr-btn-add-custom-icon', 'aria-hidden': 'true' }, '+'),
+    el('span', {}, 'Add my own reservation'),
+  );
+  btn.setAttribute('aria-label', 'Add a reservation you booked yourself for this night');
+  btn.addEventListener('click', () => {
+    nightAddingCustom.add(night.date);
+    rerender();
+  });
+  wrap.append(btn);
+  wrap.append(el('p', { class: 'tr-add-custom-hint' },
+    'Booked somewhere not on the list? Add it here so it shows up in your itinerary.'));
+  return wrap;
+}
+
+// Render the OpenTable / Yelp Santa Fe browse chips.
+// `placement` is 'top' (top of dining tab) or 'in-picker' (inside a night picker).
+function renderBrowseChips(night, state, placement) {
+  const wrap = el('div', { class: 'tr-browse-chips tr-browse-chips--' + placement });
+  if (placement === 'in-picker') {
+    wrap.append(el('p', { class: 'tr-browse-chips-label' }, 'Or browse Santa Fe restaurants'));
+  } else {
+    wrap.append(el('p', { class: 'tr-browse-chips-label' }, 'Browse Santa Fe restaurants'));
+  }
+  // OpenTable: pre-fill date + party size when invoked from a specific night.
+  const otBase = 'https://www.opentable.com/s';
+  const otParams = new URLSearchParams({
+    term: 'Santa Fe, NM',
+    covers: String(state.party?.size || 2),
+  });
+  if (night) {
+    otParams.set('dateTime', `${night.date}T${toHHMM(state.party?.defaultTime || '19:00')}:00`);
+  }
+  const otUrl = `${otBase}?${otParams.toString()}`;
+  const yelpUrl = 'https://www.yelp.com/search?find_desc=Restaurants&find_loc=Santa+Fe%2C+NM';
+  const otChip = el('a', {
+    class: 'tr-browse-chip tr-browse-chip-opentable',
+    href: otUrl, target: '_blank', rel: 'noopener',
+    'aria-label': 'Search OpenTable Santa Fe (opens in new tab)',
+  },
+    el('span', { class: 'tr-browse-chip-mark' }, 'OT'),
+    el('span', { class: 'tr-browse-chip-label' }, 'OpenTable'),
+    el('span', { class: 'tr-browse-chip-arrow', 'aria-hidden': 'true' }, '\u2197'),
+  );
+  const yelpChip = el('a', {
+    class: 'tr-browse-chip tr-browse-chip-yelp',
+    href: yelpUrl, target: '_blank', rel: 'noopener',
+    'aria-label': 'Search Yelp Santa Fe (opens in new tab)',
+  },
+    el('span', { class: 'tr-browse-chip-mark' }, 'Y'),
+    el('span', { class: 'tr-browse-chip-label' }, 'Yelp'),
+    el('span', { class: 'tr-browse-chip-arrow', 'aria-hidden': 'true' }, '\u2197'),
+  );
+  const row = el('div', { class: 'tr-browse-chips-row' });
+  row.append(otChip, yelpChip);
+  wrap.append(row);
+  return wrap;
+}
+
+// Form for capturing a user's own reservation. `editing` is null for new,
+// or the existing custom record when editing.
+function renderCustomForm(night, state, rerender, editing) {
+  const wrap = el('form', { class: 'tr-custom-form', 'aria-label': 'Add reservation' });
+  wrap.addEventListener('submit', (e) => e.preventDefault());
+  wrap.append(el('p', { class: 'tr-custom-form-title' },
+    editing ? 'Edit your reservation' : 'Add your reservation'));
+
+  const grid = el('div', { class: 'tr-custom-form-grid' });
+
+  // Name (required)
+  const nameLabel = el('label', { class: 'tr-custom-form-label', for: 'tr-cf-name-' + night.date }, 'Restaurant name');
+  const nameInput = el('input', {
+    id: 'tr-cf-name-' + night.date,
+    type: 'text', required: 'required',
+    class: 'tr-custom-form-input',
+    placeholder: 'e.g. Sazon',
+    autocomplete: 'off',
+  });
+  if (editing?.name) nameInput.value = editing.name;
+  grid.append(el('div', { class: 'tr-custom-form-field tr-cf-field-name' }, nameLabel, nameInput));
+
+  // Time
+  const timeLabel = el('label', { class: 'tr-custom-form-label', for: 'tr-cf-time-' + night.date }, 'Time');
+  const timeInput = el('input', {
+    id: 'tr-cf-time-' + night.date,
+    type: 'time', class: 'tr-custom-form-input',
+  });
+  timeInput.value = editing?.time || toHHMM(state.party?.defaultTime || '19:00');
+  grid.append(el('div', { class: 'tr-custom-form-field tr-cf-field-time' }, timeLabel, timeInput));
+
+  // Reservation/confirmation URL (optional)
+  const urlLabel = el('label', { class: 'tr-custom-form-label', for: 'tr-cf-url-' + night.date }, 'Confirmation or listing link (optional)');
+  const urlInput = el('input', {
+    id: 'tr-cf-url-' + night.date,
+    type: 'url',
+    class: 'tr-custom-form-input',
+    placeholder: 'https://www.opentable.com/r/…',
+    autocomplete: 'off',
+  });
+  if (editing?.url) urlInput.value = editing.url;
+  grid.append(el('div', { class: 'tr-custom-form-field tr-cf-field-url' }, urlLabel, urlInput));
+
+  // Confirmation # (optional)
+  const confLabel = el('label', { class: 'tr-custom-form-label', for: 'tr-cf-conf-' + night.date }, 'Confirmation # (optional)');
+  const confInput = el('input', {
+    id: 'tr-cf-conf-' + night.date,
+    type: 'text', class: 'tr-custom-form-input',
+    placeholder: 'e.g. 12345678',
+    autocomplete: 'off',
+  });
+  if (editing?.confirmation) confInput.value = editing.confirmation;
+  grid.append(el('div', { class: 'tr-custom-form-field tr-cf-field-conf' }, confLabel, confInput));
+
+  wrap.append(grid);
+
+  const err = el('p', { class: 'tr-custom-form-error', role: 'alert' }, '');
+  err.hidden = true;
+  wrap.append(err);
+
+  const showErr = (msg, focusEl) => {
+    err.textContent = msg; err.hidden = false;
+    if (focusEl) { focusEl.classList.add('is-invalid'); focusEl.focus(); }
+  };
+  const clearErr = () => {
+    err.hidden = true;
+    [nameInput, urlInput].forEach(i => i.classList.remove('is-invalid'));
+  };
+  nameInput.addEventListener('input', clearErr);
+  urlInput.addEventListener('input', clearErr);
+
+  const actions = el('div', { class: 'tr-custom-form-actions' });
+  const saveBtn = el('button', { type: 'submit', class: 'tr-btn-primary' },
+    editing ? 'Save changes' : 'Add reservation');
+  saveBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const time = (timeInput.value || '').trim();
+    const url = urlInput.value.trim();
+    const confirmation = confInput.value.trim();
+    if (!name) { showErr('Restaurant name is required.', nameInput); return; }
+    if (url && !isValidHttpUrl(url)) { showErr('Link needs https:// (or http://) at the start.', urlInput); return; }
+    state.setCustom(night, {
+      name, time: time || null,
+      url: url || null,
+      confirmation: confirmation || null,
+      addedAt: editing?.addedAt || new Date().toISOString(),
+    });
+    nightAddingCustom.delete(night.date);
+    rerender();
+  });
+  const cancelBtn = el('button', { type: 'button', class: 'tr-btn-secondary' }, 'Cancel');
+  cancelBtn.addEventListener('click', () => {
+    nightAddingCustom.delete(night.date);
+    rerender();
+  });
+  actions.append(saveBtn, cancelBtn);
+  wrap.append(actions);
+
+  // Helper row — browse chips inside the form for convenience
+  wrap.append(renderBrowseChips(night, state, 'in-form'));
+
+  // Focus name field on first render
+  setTimeout(() => nameInput.focus(), 30);
+
+  return wrap;
+}
+
+// Render the picked-state card for a user's own custom restaurant.
+function renderCustomBlock(dataset, night, state, rerender) {
+  const custom = state.customFor(night);
+  const block = el('div', { class: 'tr-picked-block tr-custom-block' });
+  if (!custom) return block;
+  block.append(el('p', { class: 'tr-picked-label tr-custom-label' },
+    el('span', { class: 'tr-custom-label-pill' }, 'Added by you'),
+    el('span', { class: 'tr-custom-label-name' }, custom.name),
+  ));
+  block.append(renderCustomCard(night, state, custom, rerender));
+  return block;
+}
+
+function hostLabelForUrl(url){
+  try {
+    const h = new URL(url).hostname.replace(/^www\./,'');
+    const parts = h.split('.');
+    const reg = parts.length >= 2 ? parts.slice(-2).join('.') : h;
+    return reg.toUpperCase();
+  } catch(e){ return 'LINK'; }
+}
+
+function renderCustomCard(night, state, custom, rerender) {
+  const card = el('div', { class: 'tr-restaurant tr-restaurant-custom' });
+  // Head: name + 'your reservation' chip
+  const head = el('div', { class: 'tr-restaurant-head' });
+  const top = el('div', { class: 'tr-restaurant-top' });
+  top.append(el('h3', { class: 'tr-name' }, custom.name));
+  top.append(el('span', { class: 'tr-tier-chip tr-tier-chip-custom' }, 'Your pick'));
+  head.append(top);
+  if (custom.time) {
+    head.append(el('p', { class: 'tr-meta' },
+      el('span', { class: 'tr-meta-time' }, formatTimeLabel(custom.time))));
+  }
+  card.append(head);
+
+  // Boarding-pass style reservation card when URL is present
+  if (isValidHttpUrl(custom.url)) {
+    const linkCard = el('a', {
+      class: 'tr-resv-card',
+      href: custom.url, target: '_blank', rel: 'noopener',
+      'aria-label': 'Open reservation' + (custom.confirmation ? ' #' + custom.confirmation : '') + ' (opens in new tab)',
+    });
+    linkCard.append(el('span', { class: 'tr-resv-card-stub' }, hostLabelForUrl(custom.url)));
+    linkCard.append(el('span', { class: 'tr-resv-card-notch', 'aria-hidden': 'true' }));
+    const body = el('span', { class: 'tr-resv-card-body' });
+    body.append(el('span', { class: 'tr-resv-card-eyebrow' }, 'Reservation'));
+    body.append(el('span', { class: 'tr-resv-card-code' },
+      custom.confirmation ? '#' + custom.confirmation : 'View listing'));
+    body.append(el('span', { class: 'tr-resv-card-cta' }, 'Open \u2197'));
+    linkCard.append(body);
+    card.append(linkCard);
+  } else if (custom.confirmation) {
+    card.append(el('p', { class: 'tr-custom-conf-only' },
+      el('span', { class: 'tr-custom-conf-label' }, 'Confirmation #'),
+      el('span', { class: 'tr-custom-conf-num' }, custom.confirmation),
+    ));
+  }
+
+  // Actions: edit / remove
+  const actions = el('div', { class: 'tr-actions tr-custom-actions' });
+  const editBtn = el('button', { type: 'button', class: 'tr-btn-secondary' }, 'Edit');
+  editBtn.addEventListener('click', () => {
+    nightAddingCustom.add(night.date);
+    // Render form in edit mode — we re-render the whole card and the body
+    // takes a different path because nightAddingCustom is set AND custom is set.
+    // Special-case: clear the custom temporarily? No — form prefills from editing arg.
+    // Easier: directly mount the form by replacing this block.
+    const formWrap = el('div', { class: 'tr-night-body' });
+    formWrap.append(renderCustomForm(night, state, rerender, custom));
+    card.parentElement.replaceWith(formWrap);
+  });
+  const removeBtn = el('button', { type: 'button', class: 'tr-btn-secondary tr-custom-remove' }, 'Remove');
+  removeBtn.addEventListener('click', () => {
+    const ok = (typeof confirm !== 'function') || confirm(`Remove ${custom.name} from this night?`);
+    if (!ok) return;
+    state.setCustom(night, null);
+    state.setBooked(night, null);
+    rerender();
+  });
+  actions.append(editBtn, removeBtn);
+  card.append(actions);
+
+  return card;
+}
+
+function formatTimeLabel(hhmm) {
+  if (!hhmm) return '';
+  const [h, m] = hhmm.split(':').map(Number);
+  if (Number.isNaN(h)) return hhmm;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = ((h + 11) % 12) + 1;
+  return `${h12}:${String(m||0).padStart(2,'0')} ${period}`;
 }
 
 // ---------- Tier picker (shown when no pick + no tier selected) ----------
@@ -603,8 +902,13 @@ function renderNightSummary(dataset, night, state) {
   const right = el('div', { class: 'tr-night-summary-right' });
   const pickId = state.pickFor(night);
   const booking = state.bookingFor(night);
+  const custom = state.customFor(night);
   const pickedR = pickId ? dataset.restaurants.find(x => x.id === pickId) : null;
-  if (pickId && pickedR) {
+  if (custom) {
+    // User-added reservation gets its own subtle treatment.
+    right.append(el('span', { class: 'tr-night-status is-custom' }, 'Your pick'));
+    right.append(el('span', { class: 'tr-night-pick-name' }, custom.name));
+  } else if (pickId && pickedR) {
     const label = booking ? '✓ Booked' : 'Picked';
     right.append(el('span', { class: `tr-night-status ${booking ? 'is-booked' : 'is-picked'}` }, label));
     right.append(el('span', { class: 'tr-night-pick-name' }, pickedR.name));
@@ -1132,6 +1436,13 @@ function renderTimeline(dataset, state) {
   let picked = 0, booked = 0, urgentUnbooked = 0;
   let firstUnbookedNight = null;
   for (const night of dataset.nights) {
+    const custom = state.customFor(night);
+    if (custom) {
+      // Custom reservations count as both picked and booked — the user
+      // already arranged it themselves.
+      picked += 1; booked += 1;
+      continue;
+    }
     const pickId = state.pickFor(night);
     if (!pickId) continue;
     picked += 1;

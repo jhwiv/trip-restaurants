@@ -531,6 +531,7 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
   color: #b3261e; display: inline-block; width: 100%;
   padding: 2px 0;
 }
+.tr-conf-error[hidden] { display: none; }
 .tr-btn-mark {
   background: transparent;
   border: 1px solid var(--tr-green);
@@ -1097,4 +1098,351 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
   .tr-tier-row { padding: 11px 12px; gap: 10px; }
   .tr-tier-row-name { font-size: 16px; }
   .tr-tier-row-meta { font-size: 12.5px; }
+}
+
+/* ============================================================
+   Custom reservations (user-added off-list restaurants)
+   ============================================================ */
+
+/* --- 'Add my own reservation' CTA at bottom of tier picker --- */
+.tr-add-custom-cta {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed rgba(0,0,0,0.12);
+  text-align: center;
+}
+.tr-btn-add-custom {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent;
+  border: 1.5px dashed var(--tr-terra, #a44d2b);
+  color: var(--tr-terra, #a44d2b);
+  font-family: inherit;
+  font-size: 13px; font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.tr-btn-add-custom:hover, .tr-btn-add-custom:focus-visible {
+  background: var(--tr-terra, #a44d2b);
+  color: var(--tr-cream, #f7f1e6);
+  border-style: solid;
+  outline: none;
+}
+.tr-btn-add-custom-icon {
+  font-size: 16px; font-weight: 400; line-height: 1;
+}
+.tr-add-custom-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--tr-muted, #6b5a3a);
+  font-style: italic;
+}
+
+/* --- Browse chips (OpenTable / Yelp) --- */
+.tr-browse-chips {
+  margin: 18px 0 6px;
+}
+.tr-browse-chips--top {
+  margin: 14px 0 10px;
+  padding: 14px 16px;
+  background: rgba(176, 138, 62, 0.06);
+  border: 1px solid rgba(176, 138, 62, 0.18);
+  border-radius: 10px;
+}
+.tr-browse-chips--in-picker {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dotted rgba(0,0,0,0.10);
+}
+.tr-browse-chips--in-form {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dotted rgba(0,0,0,0.10);
+}
+.tr-browse-chips-label {
+  margin: 0 0 8px;
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-gold, #b08a3e);
+}
+.tr-browse-chips-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.tr-browse-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 13px 7px 8px;
+  border-radius: 999px;
+  background: var(--tr-cream, #f7f1e6);
+  border: 1px solid rgba(0,0,0,0.14);
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tr-ink, #2a1d08);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.tr-browse-chip:hover, .tr-browse-chip:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px -6px rgba(0,0,0,0.25);
+  outline: none;
+}
+.tr-browse-chip-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  flex-shrink: 0;
+}
+.tr-browse-chip-opentable .tr-browse-chip-mark { background: #da3743; }
+.tr-browse-chip-opentable:hover { border-color: #da3743; }
+.tr-browse-chip-yelp .tr-browse-chip-mark { background: #c41200; }
+.tr-browse-chip-yelp:hover { border-color: #c41200; }
+.tr-browse-chip-label { letter-spacing: 0.01em; }
+.tr-browse-chip-arrow {
+  font-size: 11px; font-weight: 600;
+  color: var(--tr-muted, #6b5a3a);
+  margin-left: 2px;
+}
+
+/* --- Custom reservation form --- */
+.tr-custom-form {
+  background: rgba(176, 138, 62, 0.05);
+  border: 1px solid rgba(176, 138, 62, 0.22);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 8px 0;
+}
+.tr-custom-form-title {
+  margin: 0 0 14px;
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tr-gold, #b08a3e);
+}
+.tr-custom-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 12px 14px;
+}
+.tr-cf-field-name { grid-column: 1 / -1; }
+.tr-cf-field-url  { grid-column: 1 / -1; }
+.tr-cf-field-conf { grid-column: 1 / -1; }
+.tr-custom-form-field {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.tr-custom-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--tr-muted, #6b5a3a);
+  text-transform: uppercase;
+}
+.tr-custom-form-input {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 9px 11px;
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--tr-ink, #2a1d08);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 0;
+}
+.tr-custom-form-input:focus {
+  outline: none;
+  border-color: var(--tr-terra, #a44d2b);
+  box-shadow: 0 0 0 3px rgba(164, 77, 43, 0.12);
+}
+.tr-custom-form-input.is-invalid {
+  border-color: #b3261e;
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.10);
+}
+.tr-custom-form-error {
+  margin: 8px 0 0;
+  color: #b3261e;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.tr-custom-form-error[hidden] { display: none; }
+.tr-custom-form-actions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 14px;
+}
+
+/* --- Picked-state custom card --- */
+.tr-night.is-custom { /* subtle visual hint that this is user-added */ }
+.tr-night-status.is-custom {
+  background: rgba(176, 138, 62, 0.16);
+  color: var(--tr-gold-dark, #8a6a26);
+  border: 1px solid rgba(176, 138, 62, 0.35);
+}
+.tr-custom-label {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+}
+.tr-custom-label-pill {
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-cream, #f7f1e6);
+  background: var(--tr-gold, #b08a3e);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.tr-custom-label-name {
+  color: var(--tr-muted, #6b5a3a);
+  font-style: italic;
+  font-size: 13px;
+}
+.tr-tier-chip-custom {
+  background: rgba(176, 138, 62, 0.18) !important;
+  color: var(--tr-gold-dark, #8a6a26) !important;
+  border: 1px solid rgba(176, 138, 62, 0.40) !important;
+}
+.tr-restaurant-custom .tr-meta-time {
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tr-terra, #a44d2b);
+  letter-spacing: 0.02em;
+}
+.tr-custom-actions {
+  margin-top: 14px;
+  display: flex; gap: 8px;
+}
+.tr-custom-remove {
+  color: #b3261e !important;
+  border-color: rgba(179, 38, 30, 0.25) !important;
+}
+.tr-custom-remove:hover {
+  background: rgba(179, 38, 30, 0.06) !important;
+  border-color: #b3261e !important;
+}
+.tr-custom-conf-only {
+  margin: 12px 0;
+  display: inline-flex; align-items: baseline; gap: 8px;
+  padding: 8px 14px;
+  background: rgba(176, 138, 62, 0.08);
+  border-radius: 6px;
+}
+.tr-custom-conf-label {
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-gold, #b08a3e);
+}
+.tr-custom-conf-num {
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tr-ink, #2a1d08);
+}
+
+/* --- Boarding-pass reservation card (used inside .tr-restaurant-custom) --- */
+.tr-resv-card {
+  position: relative;
+  display: inline-flex; align-items: stretch;
+  min-height: 52px;
+  margin: 12px 0;
+  font-family: inherit;
+  text-decoration: none; color: inherit;
+  border-radius: 6px;
+  background: var(--tr-cream, #f7f1e6);
+  border: 1px solid rgba(0,0,0,0.14);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 14px -8px rgba(58,40,18,0.25);
+  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  overflow: hidden;
+  max-width: 100%;
+}
+.tr-resv-card:hover, .tr-resv-card:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 8px 20px -10px rgba(58,40,18,0.35);
+  border-color: var(--tr-terra, #a44d2b);
+  outline: none;
+}
+.tr-resv-card-stub {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 12px;
+  background: var(--tr-terra, #a44d2b);
+  color: var(--tr-cream, #f7f1e6);
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+.tr-resv-card-notch {
+  position: relative;
+  width: 1px;
+  margin: 6px 0;
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.18) 0 4px, transparent 4px 8px);
+  background-size: 1px 8px;
+  background-repeat: repeat-y;
+}
+.tr-resv-card-body {
+  display: inline-flex; flex-direction: column; justify-content: center;
+  padding: 8px 14px;
+  gap: 3px;
+  min-width: 0;
+}
+.tr-resv-card-eyebrow {
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--tr-gold, #b08a3e);
+  line-height: 1;
+}
+.tr-resv-card-code {
+  font-family: var(--tr-mono, ui-monospace, monospace);
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--tr-ink, #2a1d08);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tr-resv-card-cta {
+  font-family: inherit;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tr-terra, #a44d2b);
+  line-height: 1;
+}
+
+/* --- Mobile --- */
+@media (max-width: 480px) {
+  .tr-custom-form { padding: 14px; }
+  .tr-custom-form-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .tr-cf-field-name, .tr-cf-field-url, .tr-cf-field-conf, .tr-cf-field-time {
+    grid-column: 1;
+  }
+  .tr-custom-form-actions { flex-direction: column-reverse; }
+  .tr-custom-form-actions .tr-btn-primary,
+  .tr-custom-form-actions .tr-btn-secondary { width: 100%; }
+  .tr-browse-chips--top { padding: 12px; }
+  .tr-browse-chips-row { gap: 6px; }
+  .tr-browse-chip { padding: 6px 11px 6px 6px; font-size: 12.5px; }
+  .tr-browse-chip-mark { width: 20px; height: 20px; font-size: 9px; }
+  .tr-resv-card-stub { padding: 6px 10px; font-size: 9.5px; }
+  .tr-resv-card-body { padding: 6px 12px; }
+  .tr-resv-card-code { font-size: 13px; }
+  .tr-resv-card-cta { font-size: 10.5px; }
 }
