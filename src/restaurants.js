@@ -687,7 +687,6 @@ function renderCustomBlock(dataset, night, state, rerender) {
   if (!custom) return block;
   block.append(el('p', { class: 'tr-picked-label tr-custom-label' },
     el('span', { class: 'tr-custom-label-pill' }, 'Added by you'),
-    el('span', { class: 'tr-custom-label-name' }, custom.name),
   ));
   block.append(renderCustomCard(night, state, custom, rerender));
   return block;
@@ -708,7 +707,6 @@ function renderCustomCard(night, state, custom, rerender) {
   const head = el('div', { class: 'tr-restaurant-head' });
   const top = el('div', { class: 'tr-restaurant-top' });
   top.append(el('h3', { class: 'tr-name' }, custom.name));
-  top.append(el('span', { class: 'tr-tier-chip tr-tier-chip-custom' }, 'Your pick'));
   head.append(top);
   if (custom.time) {
     head.append(el('p', { class: 'tr-meta' },
