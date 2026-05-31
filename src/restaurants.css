@@ -557,6 +557,79 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
   font-family: inherit;
 }
 .tr-btn-change:hover { color: var(--tr-ink); }
+
+/* Picked-card footer action row: Change pick / Move / Replace with own. */
+.tr-picked-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(0,0,0,0.10);
+}
+.tr-btn-picked-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 999px;
+  color: var(--tr-ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.tr-btn-picked-action:hover { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.20); }
+.tr-btn-picked-action-icon {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--tr-green, #2f5a3d);
+  font-weight: 600;
+}
+
+/* Move-night picker overlay */
+.tr-move-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+.tr-move-sheet {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 420px; width: 100%;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.30);
+  max-height: 90vh; overflow-y: auto;
+}
+.tr-move-title { margin: 0 0 6px; font-size: 18px; }
+.tr-move-sub { margin: 0 0 14px; color: var(--tr-muted); font-size: 13px; }
+.tr-move-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.tr-move-row {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+.tr-move-row:hover { background: rgba(0,0,0,0.06); }
+.tr-move-row-date { font-weight: 600; font-size: 14px; color: var(--tr-ink); }
+.tr-move-row-existing { font-size: 12px; color: var(--tr-rust, #a44d2b); }
+.tr-move-row-empty { font-size: 12px; color: var(--tr-muted); }
+.tr-move-cancel {
+  background: transparent; border: none;
+  color: var(--tr-muted); font-family: inherit; font-size: 14px;
+  cursor: pointer; padding: 6px 12px;
+  text-decoration: underline;
+}
 .tr-closed-warning {
   margin: 10px 0 0;
   padding: 8px 10px;

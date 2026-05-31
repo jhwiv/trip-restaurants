@@ -1251,12 +1251,109 @@ function renderPickedCard(dataset, r, night, state, rerender) {
 
   if (r.booking?.note) card.append(el('p', { class: 'tr-booking-note' }, r.booking.note));
 
-  // Change pick
-  const change = el('button', { type: 'button', class: 'tr-btn-change' }, 'Change pick');
-  change.addEventListener('click', () => { state.setPick(night, null); state.setBooked(night, null); rerender(); });
-  card.append(change);
+  // Footer actions: change pick, move to another night, or replace with your own.
+  // Three explicit affordances so the user never feels boxed in by a booked pick
+  // (real-world example: Pia had Geronimo booked on Mon but her confirmation was
+  // actually for Tue, and she had no way to fix it from the booked card).
+  const footerActions = el('div', { class: 'tr-picked-actions' });
+
+  const change = el('button', { type: 'button', class: 'tr-btn-picked-action' },
+    el('span', { class: 'tr-btn-picked-action-icon', 'aria-hidden': 'true' }, '\u21BB'),
+    el('span', {}, 'Change pick'),
+  );
+  change.addEventListener('click', () => {
+    state.setPick(night, null);
+    state.setBooked(night, null);
+    rerender();
+  });
+  footerActions.append(change);
+
+  // Move to another night — only show if there's at least one other trip night.
+  if ((dataset.nights || []).length > 1) {
+    const move = el('button', { type: 'button', class: 'tr-btn-picked-action' },
+      el('span', { class: 'tr-btn-picked-action-icon', 'aria-hidden': 'true' }, '\u2194'),
+      el('span', {}, 'Move to another night'),
+    );
+    move.addEventListener('click', () => {
+      openMoveNightPicker(dataset, night, state, r, rerender);
+    });
+    footerActions.append(move);
+  }
+
+  const replace = el('button', { type: 'button', class: 'tr-btn-picked-action' },
+    el('span', { class: 'tr-btn-picked-action-icon', 'aria-hidden': 'true' }, '+'),
+    el('span', {}, 'Replace with my own reservation'),
+  );
+  replace.addEventListener('click', () => {
+    state.setPick(night, null);
+    state.setBooked(night, null);
+    nightAddingCustom.add(night.date);
+    rerender();
+  });
+  footerActions.append(replace);
+
+  card.append(footerActions);
 
   return card;
+}
+
+// ---------- Move-night picker ----------
+// Lightweight inline picker shown when the user taps "Move to another night"
+// on a picked card. Lists every other trip night with a tap target. Tapping
+// a target moves the pick + booking (+ notes) to the chosen night and clears
+// the current one. If the target night already has a pick, the user is asked
+// to confirm before overwriting.
+function openMoveNightPicker(dataset, fromNight, state, restaurant, rerender) {
+  const overlay = el('div', { class: 'tr-move-overlay', role: 'dialog', 'aria-modal': 'true' });
+  const sheet = el('div', { class: 'tr-move-sheet' });
+  sheet.append(el('h3', { class: 'tr-move-title' }, `Move ${restaurant.name} to\u2026`));
+  sheet.append(el('p', { class: 'tr-move-sub' },
+    `Currently on ${fromNight.label || fromNight.date}. Pick the night that matches your confirmation.`));
+
+  const list = el('div', { class: 'tr-move-list' });
+  for (const target of dataset.nights) {
+    if (target.date === fromNight.date) continue;
+    const existingPickId = state.pickFor(target);
+    const existingCustom = state.customFor(target);
+    const existingName = existingCustom?.name
+      || (existingPickId ? (dataset.restaurants.find(r => r.id === existingPickId)?.name || existingPickId) : null);
+    const row = el('button', { type: 'button', class: 'tr-move-row' });
+    row.append(el('span', { class: 'tr-move-row-date' }, target.label || target.date));
+    if (existingName) {
+      row.append(el('span', { class: 'tr-move-row-existing' }, `Currently: ${existingName} \u2014 will be replaced`));
+    } else {
+      row.append(el('span', { class: 'tr-move-row-empty' }, 'No pick yet'));
+    }
+    row.addEventListener('click', () => {
+      if (existingName && !confirm(`${target.label || target.date} already has "${existingName}". Replace it with ${restaurant.name}?`)) return;
+      // Move pick
+      const booking = state.bookingFor(fromNight);
+      const note = state.notes?.[fromNight.date];
+      state.setPick(fromNight, null);
+      state.setBooked(fromNight, null);
+      if (existingCustom) state.setCustom(target, null);
+      state.setPick(target, restaurant.id);
+      if (booking) state.setBooked(target, booking);
+      if (note && state.notes) {
+        state.notes[target.date] = note;
+        delete state.notes[fromNight.date];
+        state._save(state.keys.notes, state.notes);
+        state._notify();
+      }
+      overlay.remove();
+      rerender();
+    });
+    list.append(row);
+  }
+  sheet.append(list);
+
+  const cancel = el('button', { type: 'button', class: 'tr-move-cancel' }, 'Cancel');
+  cancel.addEventListener('click', () => overlay.remove());
+  sheet.append(cancel);
+
+  overlay.append(sheet);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.append(overlay);
 }
 
 function renderRestaurantHead(dataset, r) {
