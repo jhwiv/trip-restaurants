@@ -516,6 +516,10 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
   color: var(--tr-ink);
 }
 .tr-confirmation-input:focus { outline: 2px solid var(--tr-gold); outline-offset: -1px; }
+.tr-confirmation-url { min-width: 220px; }
+.tr-booked-conf { color: var(--tr-green); font-weight: 600; }
+.tr-booked-conf:hover { color: var(--tr-rust); }
+.tr-booked-edit-link { color: var(--tr-muted); font-size: 11.5px; }
 .tr-btn-mark {
   background: transparent;
   border: 1px solid var(--tr-green);

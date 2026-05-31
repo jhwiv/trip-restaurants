@@ -264,6 +264,16 @@ function toHHMM(t) {
 }
 function pad(n) { return String(n).padStart(2, '0'); }
 
+function isValidHttpUrl(s) {
+  if (!s || typeof s !== 'string') return false;
+  try {
+    const u = new URL(s);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
 // ---------- ICS / Add-to-Calendar ----------
 // Builds a single VEVENT for the booked dinner and triggers a file download.
 // Format: floating local time (no TZID) so it lands at the same wall-clock
@@ -818,9 +828,38 @@ function renderPickedCard(dataset, r, night, state, rerender) {
     booked.append(el('span', { class: 'tr-booked-check' }, '✓'));
     booked.append(el('span', { class: 'tr-booked-text' }, ` Booked${booking.confirmation ? ' · #' + booking.confirmation : ''}`));
     const actionsRow = el('span', { class: 'tr-booked-actions' });
+    // Confirmation URL link — only render if a valid URL is stored
+    if (isValidHttpUrl(booking.confirmationUrl)) {
+      actionsRow.append(el('a', {
+        class: 'tr-btn-link tr-booked-conf',
+        href: booking.confirmationUrl,
+        target: '_blank',
+        rel: 'noopener',
+        title: 'Open booking confirmation'
+      }, '📄 Confirmation ↗'));
+    }
     const icsBtn = el('button', { type: 'button', class: 'tr-btn-link tr-booked-ics', title: 'Download .ics calendar file' }, '📅 Add to Calendar');
     icsBtn.addEventListener('click', () => downloadIcs(r, night, state, booking));
     actionsRow.append(icsBtn);
+    // Edit-link control: lets user add/update/clear the confirmation URL without un-booking
+    const editLinkBtn = el('button', { type: 'button', class: 'tr-btn-link tr-booked-edit-link' },
+      booking.confirmationUrl ? 'Edit link' : '+ Add link');
+    editLinkBtn.addEventListener('click', () => {
+      const current = booking.confirmationUrl || '';
+      const next = prompt('Paste the confirmation URL (Viator, OpenTable, Resy, email link, etc.)\n\nLeave blank to remove.', current);
+      if (next === null) return; // cancelled
+      const trimmed = (next || '').trim();
+      if (trimmed && !isValidHttpUrl(trimmed)) {
+        alert('That doesn\u2019t look like a valid http(s) URL. Try again.');
+        return;
+      }
+      state.setBooked(night, {
+        ...booking,
+        confirmationUrl: trimmed || null
+      });
+      rerender();
+    });
+    actionsRow.append(editLinkBtn);
     const clearBtn = el('button', { type: 'button', class: 'tr-btn-link tr-booked-clear' }, 'Clear');
     clearBtn.addEventListener('click', () => { state.setBooked(night, null); rerender(); });
     actionsRow.append(clearBtn);
@@ -839,12 +878,23 @@ function renderPickedCard(dataset, r, night, state, rerender) {
   if (!isBooked) {
     const mark = el('div', { class: 'tr-mark-booked' });
     const input = el('input', { type: 'text', class: 'tr-confirmation-input', placeholder: 'Confirmation # (optional)', 'aria-label': 'Confirmation number' });
+    const urlInput = el('input', { type: 'url', class: 'tr-confirmation-input tr-confirmation-url', placeholder: 'Confirmation URL (optional)', 'aria-label': 'Confirmation URL' });
     const btn = el('button', { type: 'button', class: 'tr-btn-mark' }, 'Mark as booked');
     btn.addEventListener('click', () => {
-      state.setBooked(night, { confirmation: input.value.trim() || null, bookedAt: new Date().toISOString() });
+      const urlVal = urlInput.value.trim();
+      if (urlVal && !isValidHttpUrl(urlVal)) {
+        alert('Confirmation URL must start with http:// or https:// (or leave it blank).');
+        urlInput.focus();
+        return;
+      }
+      state.setBooked(night, {
+        confirmation: input.value.trim() || null,
+        confirmationUrl: urlVal || null,
+        bookedAt: new Date().toISOString()
+      });
       rerender();
     });
-    mark.append(input, btn);
+    mark.append(input, urlInput, btn);
     card.append(mark);
   }
 
