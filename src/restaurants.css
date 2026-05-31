@@ -517,9 +517,20 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
 }
 .tr-confirmation-input:focus { outline: 2px solid var(--tr-gold); outline-offset: -1px; }
 .tr-confirmation-url { min-width: 220px; }
+.tr-confirmation-input.is-invalid { border-color: #b3261e; outline-color: #b3261e; }
 .tr-booked-conf { color: var(--tr-green); font-weight: 600; }
 .tr-booked-conf:hover { color: var(--tr-rust); }
 .tr-booked-edit-link { color: var(--tr-muted); font-size: 11.5px; }
+.tr-conf-editor {
+  display: flex; flex-wrap: wrap; gap: 6px 8px;
+  align-items: center; margin-top: 8px; width: 100%;
+}
+.tr-conf-editor .tr-confirmation-input { flex: 1 1 220px; min-width: 180px; }
+.tr-conf-error {
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  color: #b3261e; display: inline-block; width: 100%;
+  padding: 2px 0;
+}
 .tr-btn-mark {
   background: transparent;
   border: 1px solid var(--tr-green);
