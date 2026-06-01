@@ -548,6 +548,7 @@ function renderBrowseChips(night, state, placement) {
   }
   const otUrl = `${otBase}?${otParams.toString()}`;
   const yelpUrl = 'https://www.yelp.com/search?find_desc=Restaurants&find_loc=Santa+Fe%2C+NM';
+  const resyUrl = 'https://resy.com/cities/santa-fe-nm';
   const otChip = el('a', {
     class: 'tr-browse-chip tr-browse-chip-opentable',
     href: otUrl, target: '_blank', rel: 'noopener',
@@ -555,6 +556,15 @@ function renderBrowseChips(night, state, placement) {
   },
     el('span', { class: 'tr-browse-chip-mark' }, 'OT'),
     el('span', { class: 'tr-browse-chip-label' }, 'OpenTable'),
+    el('span', { class: 'tr-browse-chip-arrow', 'aria-hidden': 'true' }, '\u2197'),
+  );
+  const resyChip = el('a', {
+    class: 'tr-browse-chip tr-browse-chip-resy',
+    href: resyUrl, target: '_blank', rel: 'noopener',
+    'aria-label': 'Browse Resy Santa Fe (opens in new tab)',
+  },
+    el('span', { class: 'tr-browse-chip-mark' }, 'R'),
+    el('span', { class: 'tr-browse-chip-label' }, 'Resy'),
     el('span', { class: 'tr-browse-chip-arrow', 'aria-hidden': 'true' }, '\u2197'),
   );
   const yelpChip = el('a', {
@@ -567,7 +577,7 @@ function renderBrowseChips(night, state, placement) {
     el('span', { class: 'tr-browse-chip-arrow', 'aria-hidden': 'true' }, '\u2197'),
   );
   const row = el('div', { class: 'tr-browse-chips-row' });
-  row.append(otChip, yelpChip);
+  row.append(otChip, resyChip, yelpChip);
   wrap.append(row);
   return wrap;
 }

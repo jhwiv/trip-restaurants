@@ -1275,6 +1275,8 @@ details.tr-night[open] > .tr-night-summary::after { transform: rotate(90deg); }
 }
 .tr-browse-chip-opentable .tr-browse-chip-mark { background: #da3743; }
 .tr-browse-chip-opentable:hover { border-color: #da3743; }
+.tr-browse-chip-resy .tr-browse-chip-mark { background: #111111; }
+.tr-browse-chip-resy:hover { border-color: #111111; }
 .tr-browse-chip-yelp .tr-browse-chip-mark { background: #c41200; }
 .tr-browse-chip-yelp:hover { border-color: #c41200; }
 .tr-browse-chip-label { letter-spacing: 0.01em; }
